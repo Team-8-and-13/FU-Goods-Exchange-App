@@ -1,5 +1,7 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Services.Interface;
+using FUExchange.Core.Base;
+using FUExchange.Core.Constants;
 using FUExchange.ModelViews.ExchangeModelViews;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +22,10 @@ namespace FUExchangeBE.API.Controllers
         public async Task<IActionResult> GetAllExchange()
         {
             var exchanges = await _exchangeService.GetAllExchangeAsync();
-            return Ok(exchanges);
+            return Ok(new BaseResponse<IEnumerable<Exchange>>(
+             statusCode: StatusCodeHelper.OK,
+             code: StatusCodeHelper.OK.ToString(),
+             data: exchanges));
         }
 
         [HttpGet("{id}")]

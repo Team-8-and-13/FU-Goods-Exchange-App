@@ -12,13 +12,12 @@ namespace FUExchange.Services.Service
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<Exchange> CreateExchangeAsync(Exchange exc, string userId)
+        public async Task CreateExchangeAsync(Exchange exc, string userId)
         {
             exc.CreatedBy = userId;
             exc.CreatedTime = DateTime.Now;
             await _unitOfWork.GetRepository<Exchange>().InsertAsync(exc);
             await _unitOfWork.SaveAsync();
-            return exc;
         }
 
         public async Task<Exchange> DeleteExchangeAsync(string id, string userId)

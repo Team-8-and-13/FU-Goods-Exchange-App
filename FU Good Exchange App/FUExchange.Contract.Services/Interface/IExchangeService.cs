@@ -9,7 +9,7 @@ namespace FUExchange.Contract.Services.Interface
     {
         Task<IEnumerable<Exchange>> GetAllExchangeAsync();
         Task<Exchange?> GetExchangeByIdAsync(string id);
-        Task<Exchange> CreateExchangeAsync(Exchange exc, string userId);
+        Task CreateExchangeAsync(Exchange exc, string userId);
         Task<Exchange> UpdateExchangeAsync(Exchange exc, string userId);
         Task<Exchange> DeleteExchangeAsync(string id, string userId);
         Task<BasePaginatedList<Exchange>> GetExchangePaginatedAsync(int pageIndex, int pageSize);

@@ -3,6 +3,7 @@ using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Repositories.Entity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace FUExchange.Services.Service
         }
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            return await _unitOfWork.GetRepository<Product>().GetAllAsync();
+            return await _unitOfWork.GetRepository<Product>().Entities.Where(p => !p.DeletedTime.HasValue).ToListAsync();
         }
         public async Task<IEnumerable<Product>> GetAllApproveProductsAsync()
         {

@@ -7,7 +7,7 @@ namespace FUExchange.Contract.Services.Interface
     {
         Task<Comment> CreateCommentAsync(Comment comment);
         Task<Comment> CreateReplyCommentAsync(string commentId, Comment comment);
-        Task<Comment> GetCommentByIdAsync(string id);
+        Task<Comment?> GetCommentByIdAsync(string id);
         Task<IEnumerable<Comment>> GetAllCommentsFromProductAsync(string id);
         Task UpdateCommentAsync(Comment comment);
         Task DeleteCommentAsync(string id);

@@ -38,7 +38,7 @@ namespace FUExchange.Services.Service
         {
             category.LastUpdatedBy = userId;
             category.LastUpdatedTime = DateTime.Now;
-            _unitOfWork.GetRepository<Category>().UpdateAsync(category);
+            await _unitOfWork.GetRepository<Category>().UpdateAsync(category);
             await _unitOfWork.SaveAsync();
             return category;
         }
@@ -51,7 +51,7 @@ namespace FUExchange.Services.Service
             category.DeletedBy = userId;
             category.DeletedTime = DateTime.Now;
 
-            _unitOfWork.GetRepository<Category>().UpdateAsync(category);
+            await _unitOfWork.GetRepository<Category>().UpdateAsync(category);
             await _unitOfWork.SaveAsync();
             return category;
         }

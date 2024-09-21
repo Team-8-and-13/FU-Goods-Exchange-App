@@ -2,6 +2,7 @@
 using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
+using Microsoft.EntityFrameworkCore;
 
 namespace FUExchange.Services.Service
 {
@@ -16,7 +17,7 @@ namespace FUExchange.Services.Service
 
         public async Task<IEnumerable<Comment>> GetAllCommentsFromProductAsync(string id)
         {
-            return await _unitOfWork.GetCommentRepository().GetAllCommentFromProduct(id);
+            return await _unitOfWork.GetRepository<Comment>().Entities.Where(c => c.ProductId == id).ToListAsync();
         }
 
         public async Task<Comment?> GetCommentByIdAsync(string id)
