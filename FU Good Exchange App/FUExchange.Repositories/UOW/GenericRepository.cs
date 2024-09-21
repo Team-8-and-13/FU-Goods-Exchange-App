@@ -1,67 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FUExchange.Contract.Repositories.Interface;
-using FUExchange.Core;
-using FUExchange.Repositories.Context;
 using FUExchange.Core.Base;
+using FUExchange.Repositories.Context;
+using FUExchange.Core;
 
-namespace FUExchange.Repositories.UOW
+namespace FUExchange.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         protected readonly DatabaseContext _context;
         protected readonly DbSet<T> _dbSet;
+
         public GenericRepository(DatabaseContext dbContext)
         {
             _context = dbContext;
             _dbSet = _context.Set<T>();
         }
-        public IQueryable<T> Entities => _context.Set<T>();
 
-        public void Delete(object id)
-        {
-            T entity = _dbSet.Find(id) ?? throw new Exception();
-            _dbSet.Remove(entity);
-        }
-
-        public async Task DeleteAsync(object id)
-        {
-            T entity = await _dbSet.FindAsync(id) ?? throw new Exception();
-            _dbSet.Remove(entity);
-        }
-        //public void Delete(object id, string userId)
-        //{
-        //    var entity = _dbSet.Find(id) as BaseEntity;
-
-        //    if (entity == null)
-        //    {
-        //        throw new Exception("Entity not found.");
-        //    }
-
-        //    // Cập nhật thông tin xóa
-        //    entity.DeletedTime = DateTimeOffset.Now;
-        //    entity.DeletedBy = userId; // Thay đổi 'userId' thành thông tin thực tế về người xóa
-
-        //    // Cập nhật thực thể trong DbSet thay vì xóa
-        //    _dbSet.Update(entity);
-        //}
-
-        //public async Task DeleteAsync(object id, string userId)
-        //{
-        //    var entity = await _dbSet.FindAsync(id) as BaseEntity;
-
-        //    if (entity == null)
-        //    {
-        //        throw new Exception("Entity not found.");
-        //    }
-
-        //    // Cập nhật thông tin xóa
-        //    entity.DeletedTime = DateTimeOffset.Now;
-        //    entity.DeletedBy = userId; // Thay đổi 'userId' thành thông tin thực tế về người xóa
-
-        //    // Cập nhật thực thể trong DbSet thay vì xóa
-        //    _dbSet.Update(entity);
-        //}
-
+        public IQueryable<T> Entities => _dbSet;
 
         public IEnumerable<T> GetAll()
         {
@@ -98,7 +54,10 @@ namespace FUExchange.Repositories.UOW
 
         public async Task InsertAsync(T obj)
         {
+            obj.CreatedTime = DateTime.Now;
+            obj.LastUpdatedTime = obj.CreatedTime;
             await _dbSet.AddAsync(obj);
+            await _context.SaveChangesAsync();
         }
 
         public void InsertRange(IList<T> obj)
@@ -118,12 +77,52 @@ namespace FUExchange.Repositories.UOW
 
         public void Update(T obj)
         {
-            _dbSet.Entry(obj).State = EntityState.Modified;
+            _dbSet.Update(obj);
         }
 
         public Task UpdateAsync(T obj)
         {
             return Task.FromResult(_dbSet.Update(obj));
         }
-    }
+
+        public void Delete(object id)
+        {
+            var entity = _dbSet.Find(id);
+            if (entity == null) throw new Exception("Entity not found.");
+
+            _dbSet.Remove(entity);
+        }
+
+        public async Task DeleteAsync(object id)
+        {
+            var entity = await _dbSet.FindAsync(id.ToString());
+            if (entity == null) throw new Exception("Entity not found.");
+
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        //public void Delete(object id, string userId)
+        //{
+        //    var entity = _dbSet.Find(id);
+        //    if (entity == null) throw new Exception("Entity not found.");
+
+        //    entity.DeletedBy = userId;
+        //    entity.DeletedTime = DateTime.Now;
+
+        //    _dbSet.Update(entity);
+        //}
+
+        //public async Task DeleteAsync(object id, string userId)
+        //{
+        //    var entity = await _dbSet.FindAsync(id);
+        //    if (entity == null) throw new Exception("Entity not found.");
+
+        //    entity.DeletedBy = userId;
+        //    entity.DeletedTime = DateTime.Now;
+
+        //    _dbSet.Update(entity);
+        //    await _context.SaveChangesAsync();
+    //}
+}
 }

@@ -4,6 +4,7 @@ using FUExchange.Repositories.Context;
 using FUExchange.Repositories.Entity;
 using FUExchange.Services.Service;
 using FUExchangeBE.API;
+using FUExchangeBE.API.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -112,8 +113,11 @@ builder.Services.AddSwaggerGen();
 
 // Thêm cấu hình tùy chỉnh nếu cần
 builder.Services.AddConfig(builder.Configuration);
-
 var app = builder.Build();
+
+// Thêm middleware của bạn
+app.UseMiddleware<LoggingMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Cấu hình middleware pipeline
 if (app.Environment.IsDevelopment())
@@ -123,10 +127,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-//app.UseAuthentication();
-//app.UseAuthorization();
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 // Seed data

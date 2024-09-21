@@ -1,7 +1,9 @@
-﻿using FUExchange.Contract.Repositories.Interface;
+﻿using FUExchange.Contract.Repositories.Entity;
+using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.ModelViews.UserModelViews;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 namespace FUExchange.Services.Service
 {
     public class UserService : IUserService
@@ -11,7 +13,6 @@ namespace FUExchange.Services.Service
         {
             _unitOfWork = unitOfWork;
         }
-
         public Task<IList<UserResponseModel>> GetAll()
         {
             IList<UserResponseModel> users = new List<UserResponseModel>
@@ -22,6 +23,11 @@ namespace FUExchange.Services.Service
             };
 
             return Task.FromResult(users);
+        }
+
+        public Task<UserResponseModel> GetAllUser()
+        {
+            throw new NotImplementedException();
         }
     }
 }

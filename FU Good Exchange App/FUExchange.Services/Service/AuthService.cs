@@ -43,6 +43,7 @@ namespace FUExchange.Services.Service
             var roles = await _userManager.GetRolesAsync(user);
             var authClaims = new List<Claim>
             {
+                new Claim("UserId", user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };

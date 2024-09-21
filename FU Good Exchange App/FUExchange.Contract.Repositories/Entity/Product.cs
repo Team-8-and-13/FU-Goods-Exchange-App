@@ -15,7 +15,7 @@ namespace FUExchange.Contract.Repositories.Entity
         public double Price { get; set; }
         public string? Description { get; set; }
         public string? Image { get; set; }
-        public double NumberOfStar {  get; set; } 
+        public double NumberOfStar {  get; set; }
         public bool Approve {  get; set; }
         public bool Sold {  get; set; }
         public int Rating { get; set; }

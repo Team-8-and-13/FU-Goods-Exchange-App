@@ -16,6 +16,7 @@ namespace FUExchange.Repositories.Context
         public DbSet<Exchange> Exchanges { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<Ban> Bans { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }
 
         // user
         public virtual DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();

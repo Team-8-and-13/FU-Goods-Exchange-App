@@ -41,11 +41,12 @@ namespace FUExchangeBE.API
         //}
         public static void AddServices(this IServiceCollection services)
         {
-            services
-                //.AddScoped<IUserService, UserService>()
-                .AddScoped<IUserService, UserService>();
-            services
-                .AddScoped<CategoryService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProImagesService, ProductImageService>();
+            services.AddScoped<IExchangeService, ExchangeService>();
+            services.AddScoped<ICommentService, CommentService>();
         }
     }
 }

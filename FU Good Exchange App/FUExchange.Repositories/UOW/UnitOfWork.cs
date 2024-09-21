@@ -1,12 +1,22 @@
 ﻿using FUExchange.Contract.Repositories.Interface;
+using FUExchange.Contract.Repositories.IUOW;
+using FUExchange.Core.Base;
 using FUExchange.Repositories.Context;
 
 namespace FUExchange.Repositories.UOW
 {
-    public class UnitOfWork(DatabaseContext dbContext) : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
         private bool disposed = false;
-        private readonly DatabaseContext _dbContext = dbContext;
+        private readonly DatabaseContext _dbContext;
+
+
+        public UnitOfWork(DatabaseContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+
         public void BeginTransaction()
         {
             _dbContext.Database.BeginTransaction();
@@ -22,6 +32,7 @@ namespace FUExchange.Repositories.UOW
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
@@ -49,9 +60,24 @@ namespace FUExchange.Repositories.UOW
             await _dbContext.SaveChangesAsync();
         }
 
-        public IGenericRepository<T> GetRepository<T>() where T : class
+        // Phương thức này cần ràng buộc `BaseEntity` để khớp với GenericRepository
+        public IGenericRepository<T> GetRepository<T>() where T : BaseEntity
         {
             return new GenericRepository<T>(_dbContext);
+        }
+
+        public IProductRepository GetProductRepository()
+        {
+            return new ProductRepository(_dbContext);
+        }
+        public IProImagesRepository GetProductImagRepository()
+        {
+            return new ProImagesRepository(_dbContext);
+
+        }
+        public ICommentRepository GetCommentRepository()
+        {
+            return new CommentRepository(_dbContext);
         }
     }
 }

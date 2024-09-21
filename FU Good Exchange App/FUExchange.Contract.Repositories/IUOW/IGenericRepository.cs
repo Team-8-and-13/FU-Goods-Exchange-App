@@ -12,9 +12,7 @@ namespace FUExchange.Contract.Repositories.Interface
         T? GetById(object id);
         void Insert(T obj);
         void InsertRange(IList<T> obj);
-        void Update(T obj);
         //void Delete(object id, string userId);
-
         void Delete(object id);
         void Save();
 
@@ -24,7 +22,6 @@ namespace FUExchange.Contract.Repositories.Interface
         Task<T?> GetByIdAsync(object id);
         Task InsertAsync(T obj);
         Task UpdateAsync(T obj);
-        //Task DeleteAsync(object id, string userId);
         Task DeleteAsync(object id);
         Task SaveAsync();
     }

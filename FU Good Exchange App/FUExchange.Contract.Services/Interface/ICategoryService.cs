@@ -7,9 +7,10 @@ namespace FUExchange.Contract.Services.Interface
     {
         Task<IEnumerable<Category>> GetAllCategoriesAsync();
         Task<Category?> GetCategoryByIdAsync(string id);
-        Task CreateCategoryAsync(Category category);
-        Task UpdateCategoryAsync(Category category);
-        Task DeleteCategoryAsync(string id);
+        Task<Category> CreateCategoryAsync(Category category, string userId); 
+        Task<Category> UpdateCategoryAsync(Category category, string userId); 
+        Task<Category> DeleteCategoryAsync(string id, string userId); 
         Task<BasePaginatedList<Category>> GetCategoryPaginatedAsync(int pageIndex, int pageSize);
+        Task<IEnumerable<Product>> GetAllProductsAsync(string categoryId);
     }
 }

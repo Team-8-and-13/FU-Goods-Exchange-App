@@ -3,7 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Repositories.UOW;
 using FUExchange.Contract.Repositories.Entity;
-using FUExchange.Services.Service;
+using FUExchange.Repositories;
+using FUExchange.Contract.Repositories.IUOW;
+
 
 namespace FUExchange.Services
 {
@@ -17,6 +19,10 @@ namespace FUExchange.Services
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IGenericRepository<Category>, GenericRepository<Category>>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProImagesRepository, ProImagesRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
+
         }
     }
 }
