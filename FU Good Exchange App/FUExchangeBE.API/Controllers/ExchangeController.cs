@@ -58,8 +58,11 @@ namespace FUExchangeBE.API.Controllers
                 CreatedBy = userId
             };
 
-            var newexchange = await _exchangeService.CreateExchangeAsync(exc, userId);
-            return CreatedAtAction(nameof(GetAllExchange), new { id = newexchange.Id }, newexchange);
+            await _exchangeService.CreateExchangeAsync(exc, userId);
+            return Ok(new BaseResponse<string>(
+             statusCode: StatusCodeHelper.OK,
+             code: StatusCodeHelper.OK.ToString(),
+             data: "Tao trao doi thanh cong!!"));
         }
 
         [HttpPut("{id}")]
