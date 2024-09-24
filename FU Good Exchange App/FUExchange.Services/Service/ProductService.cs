@@ -70,7 +70,7 @@ namespace FUExchange.Services.Service
             existProduct.Description = updateProductModelView.Description;
             existProduct.CategoryId = updateProductModelView.CategoryId;
             existProduct.Image = updateProductModelView.Image;
-            existProduct.LastUpdatedBy = User.Identity?.Name;
+            existProduct.LastUpdatedBy = userID.ToString();
 
             await _unitOfWork.GetRepository<Product>().UpdateAsync(existProduct);
             await _unitOfWork.SaveAsync();
