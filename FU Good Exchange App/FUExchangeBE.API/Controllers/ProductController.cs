@@ -1,5 +1,7 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Services.Interface;
+using FUExchange.Core.Base;
+using FUExchange.Core.Constants;
 using FUExchange.ModelViews.ProductModelViews;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,81 +49,41 @@ namespace FUExchangeBE.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateProduct(CreateProductModelView createProductModel)
         {
-            if (createProductModel == null)
-            {
-                return BadRequest("Invalid product data.");
-            }
-            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userName = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userName))
-            {
-                return Unauthorized("User Name is not available in token.");
-            }
-            Guid sellerid = new Guid(User?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
-            var product = new Product
-            {
-                CategoryId = createProductModel.CategoryId,
-                Name = createProductModel.Name,
-                Price = createProductModel.Price,
-                Description = createProductModel.Description,
-                SellerId = sellerid, // lấy userId
-                CreatedBy = userName // Lấy userName từ token đã được authorize
-            };
-
-            var newProduct = await _productService.CreateProductAsync(product);
-            return CreatedAtAction(nameof(GetProductById), new { id = newProduct.Id }, newProduct);
+            await _productService.CreateProduct(createProductModel);
+            return Ok(new BaseResponse<string>(
+              statusCode: StatusCodeHelper.OK,
+              code: StatusCodeHelper.OK.ToString(),
+              data: "Create product sucessfully."));
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateProduct(string id, UpdateProductModelView updateProductModel)
         {
-            Guid userID = new Guid(User?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
-            Product existProduct = await _productService.GetProductByIdAsync(id);
-            if (existProduct == null)
-            {
-                return NotFound();
-            }
-            if (existProduct.SellerId != userID) // Chỉ user tạo product mới được cập nhật product
-            {
-                return BadRequest();
-            }
-            existProduct.Name = updateProductModel.Name;
-            existProduct.Price = updateProductModel.Price;
-            existProduct.Description = updateProductModel.Description;
-            existProduct.CategoryId = updateProductModel.CategoryId;
-            existProduct.Image = updateProductModel.Image;
-            existProduct.LastUpdatedBy = User.Identity?.Name;
-
-            await _productService.UpdateProductAsync(existProduct);
-            return NoContent();
+            await _productService.UpdateProduct(id, updateProductModel);
+            return Ok(new BaseResponse<string>(
+              statusCode: StatusCodeHelper.OK,
+              code: StatusCodeHelper.OK.ToString(),
+              data: "Update product sucessfully."));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
-            if (product == null) {
-                return NotFound();
-            }
-            product.DeletedBy = User.Identity?.Name;
-            await _productService.DeleteProductAsync(id);
-            return NoContent();
+            await _productService.DeleteProduct(id);
+            return Ok(new BaseResponse<string>(
+              statusCode: StatusCodeHelper.OK,
+              code: StatusCodeHelper.OK.ToString(),
+              data: "Delete product sucessfully."));
         }
         [HttpPut]
         [Route("api/controller/Rate_For_Product")]
         public async Task<IActionResult> RateProduct(string id, int star)
         {
-            var product = await _productService.GetProductByIdAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            if (star < 1 || star > 5)
-            {
-                return BadRequest();
-            }
             await _productService.RateProduct(id, star);
-            return NoContent();
+            return Ok(new BaseResponse<string>(
+              statusCode: StatusCodeHelper.OK,
+              code: StatusCodeHelper.OK.ToString(),
+              data: "Rate product sucessfully."));
         }
 
         [Authorize(Policy = "ModeratorPolicy")]
@@ -129,13 +91,11 @@ namespace FUExchangeBE.API.Controllers
         [Route("api/controller/Approve_Product")]
         public async Task<IActionResult> Approve(string id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
             await _productService.ApproveProduct(id);
-            return NoContent();
+            return Ok(new BaseResponse<string>(
+              statusCode: StatusCodeHelper.OK,
+              code: StatusCodeHelper.OK.ToString(),
+              data: "Approve product sucessfully."));
         }
     }
 }
