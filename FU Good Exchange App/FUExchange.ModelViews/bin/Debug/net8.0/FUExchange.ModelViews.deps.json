@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "FUExchange.ModelViews/1.0.0": {
+        "runtime": {
+          "FUExchange.ModelViews.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "FUExchange.ModelViews/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

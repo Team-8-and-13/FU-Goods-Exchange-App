@@ -1,0 +1,130 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F04B3A27-AE75-4661-B298-CE69F6717865}|FUExchange.Services\\FUExchange.Services.csproj|d:\\tl\\tai_lieu\\th\u1EF1ct\u1EADp\\fu-goods-exchange-app\\fu good exchange app\\fuexchange.services\\service\\categoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F04B3A27-AE75-4661-B298-CE69F6717865}|FUExchange.Services\\FUExchange.Services.csproj|solutionrelative:fuexchange.services\\service\\categoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E86CB317-3B91-4F7F-B8C7-78F489F55322}|FUExchangeBE.API\\FUExchangeBE.API.csproj|d:\\tl\\tai_lieu\\th\u1EF1ct\u1EADp\\fu-goods-exchange-app\\fu good exchange app\\fuexchangebe.api\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E86CB317-3B91-4F7F-B8C7-78F489F55322}|FUExchangeBE.API\\FUExchangeBE.API.csproj|solutionrelative:fuexchangebe.api\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C35A33FC-8BB0-4027-9094-4DAB48AC3513}|FUExchange.Contract.Services\\FUExchange.Contract.Services.csproj|d:\\tl\\tai_lieu\\th\u1EF1ct\u1EADp\\fu-goods-exchange-app\\fu good exchange app\\fuexchange.contract.services\\interface\\icategoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C35A33FC-8BB0-4027-9094-4DAB48AC3513}|FUExchange.Contract.Services\\FUExchange.Contract.Services.csproj|solutionrelative:fuexchange.contract.services\\interface\\icategoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C35A33FC-8BB0-4027-9094-4DAB48AC3513}|FUExchange.Contract.Services\\FUExchange.Contract.Services.csproj|d:\\tl\\tai_lieu\\th\u1EF1ct\u1EADp\\fu-goods-exchange-app\\fu good exchange app\\fuexchange.contract.services\\interface\\iexchangeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C35A33FC-8BB0-4027-9094-4DAB48AC3513}|FUExchange.Contract.Services\\FUExchange.Contract.Services.csproj|solutionrelative:fuexchange.contract.services\\interface\\iexchangeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3227B95A-7DD4-4A86-BA2A-9976468AB18F}|FUExchange.Core\\FUExchange.Core.csproj|d:\\tl\\tai_lieu\\th\u1EF1ct\u1EADp\\fu-goods-exchange-app\\fu good exchange app\\fuexchange.core\\base\\baseresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3227B95A-7DD4-4A86-BA2A-9976468AB18F}|FUExchange.Core\\FUExchange.Core.csproj|solutionrelative:fuexchange.core\\base\\baseresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FBAA5C63-0D97-469D-A24D-212E029657C8}|FUExchange.ModelViews\\FUExchange.ModelViews.csproj|d:\\tl\\tai_lieu\\th\u1EF1ct\u1EADp\\fu-goods-exchange-app\\fu good exchange app\\fuexchange.modelviews\\categorymodelviews\\categoriesmodelview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FBAA5C63-0D97-469D-A24D-212E029657C8}|FUExchange.ModelViews\\FUExchange.ModelViews.csproj|solutionrelative:fuexchange.modelviews\\categorymodelviews\\categoriesmodelview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 6,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IExchangeService.cs",
+              "DocumentMoniker": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.Contract.Services\\Interface\\IExchangeService.cs",
+              "RelativeDocumentMoniker": "FUExchange.Contract.Services\\Interface\\IExchangeService.cs",
+              "ToolTip": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.Contract.Services\\Interface\\IExchangeService.cs",
+              "RelativeToolTip": "FUExchange.Contract.Services\\Interface\\IExchangeService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-24T05:14:58.439Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "BaseResponse.cs",
+              "DocumentMoniker": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.Core\\Base\\BaseResponse.cs",
+              "RelativeDocumentMoniker": "FUExchange.Core\\Base\\BaseResponse.cs",
+              "ToolTip": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.Core\\Base\\BaseResponse.cs",
+              "RelativeToolTip": "FUExchange.Core\\Base\\BaseResponse.cs",
+              "ViewState": "AQIAABYAAAAAAAAAAAAYwCsAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-24T04:57:20.575Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "CategoriesModelView.cs",
+              "DocumentMoniker": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.ModelViews\\CategoryModelViews\\CategoriesModelView.cs",
+              "RelativeDocumentMoniker": "FUExchange.ModelViews\\CategoryModelViews\\CategoriesModelView.cs",
+              "ToolTip": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.ModelViews\\CategoryModelViews\\CategoriesModelView.cs",
+              "RelativeToolTip": "FUExchange.ModelViews\\CategoryModelViews\\CategoriesModelView.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-24T04:52:59.715Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ICategoryService.cs",
+              "DocumentMoniker": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.Contract.Services\\Interface\\ICategoryService.cs",
+              "RelativeDocumentMoniker": "FUExchange.Contract.Services\\Interface\\ICategoryService.cs",
+              "ToolTip": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.Contract.Services\\Interface\\ICategoryService.cs",
+              "RelativeToolTip": "FUExchange.Contract.Services\\Interface\\ICategoryService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAABNAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-24T03:27:48.856Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CategoryService.cs",
+              "DocumentMoniker": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.Services\\Service\\CategoryService.cs",
+              "RelativeDocumentMoniker": "FUExchange.Services\\Service\\CategoryService.cs",
+              "ToolTip": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchange.Services\\Service\\CategoryService.cs",
+              "RelativeToolTip": "FUExchange.Services\\Service\\CategoryService.cs",
+              "ViewState": "AQIAAFMAAAAAAAAAAAAgwE4AAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-24T03:18:32.001Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CategoryController.cs",
+              "DocumentMoniker": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchangeBE.API\\Controllers\\CategoryController.cs",
+              "RelativeDocumentMoniker": "FUExchangeBE.API\\Controllers\\CategoryController.cs",
+              "ToolTip": "D:\\TL\\Tai_Lieu\\Th\u1EF1cT\u1EADp\\FU-Goods-Exchange-App\\FU Good Exchange App\\FUExchangeBE.API\\Controllers\\CategoryController.cs",
+              "RelativeToolTip": "FUExchangeBE.API\\Controllers\\CategoryController.cs",
+              "ViewState": "AQIAAFoAAAAAAAAAAIAwwGcAAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-24T03:18:02.201Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

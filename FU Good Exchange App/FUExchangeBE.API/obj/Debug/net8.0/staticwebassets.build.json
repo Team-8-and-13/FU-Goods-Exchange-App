@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "YY6KtEfKpBmnyG+rM+79jhSSOc4zlnjDT5Hg60+0mSA=",
+  "Source": "FUExchangeBE.API",
+  "BasePath": "_content/FUExchangeBE.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
