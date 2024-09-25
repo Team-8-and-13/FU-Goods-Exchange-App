@@ -2,6 +2,9 @@
 using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
+using FUExchange.ModelViews.CategoryModelViews;
+using FUExchange.ModelViews.ProductModelViews;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace FUExchange.Services.Service
@@ -15,61 +18,99 @@ namespace FUExchange.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        public async Task<IEnumerable<CategoriesModelView>> GetAllCategories()
         {
-            return await _unitOfWork.GetRepository<Category>().GetAllAsync();
+            var categories = await _unitOfWork.GetRepository<Category>().Entities.Where(t => !t.DeletedTime.HasValue).ToListAsync();
+            return categories.Select(cate => new CategoriesModelView
+            {
+                Name = cate.Name,
+                CategoryId = cate.Id
+            }).ToList();
         }
 
-        public async Task<Category?> GetCategoryByIdAsync(string id)
+        public async Task<CategoriesModelView?> GetCategoryById(string id)
         {
-            return await _unitOfWork.GetRepository<Category>().GetByIdAsync(id);
+            var category = await _unitOfWork.GetRepository<Category>().GetByIdAsync(id);
+            if (category == null || category.DeletedTime.HasValue)
+            {
+                return null;
+            }
+
+            var cate = new CategoriesModelView
+            {
+                CategoryId = category.Id,
+                Name = category.Name
+            };
+
+            return cate;
         }
 
-        public async Task<Category> CreateCategoryAsync(Category category, string userId)
+        public async Task CreateCategory(CreateCategoryModelViews createCategoryModel)
         {
-            category.CreatedBy = userId;
-            category.CreatedTime = DateTime.Now;
+            IHttpContextAccessor httpContext = new HttpContextAccessor();
+            var User = httpContext.HttpContext?.User;
+            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
+
+            var category = new Category
+            {
+                Name = createCategoryModel.Name,
+                CreatedBy = userID.ToString(),
+                CreatedTime = DateTime.Now
+            };
             await _unitOfWork.GetRepository<Category>().InsertAsync(category);
             await _unitOfWork.SaveAsync();
-            return category;
         }
 
-        public async Task<Category> UpdateCategoryAsync(Category category, string userId)
+        public async Task UpdateCategory(string id, CreateCategoryModelViews updateCategoryModel)
         {
-            category.LastUpdatedBy = userId;
-            category.LastUpdatedTime = DateTime.Now;
-            await _unitOfWork.GetRepository<Category>().UpdateAsync(category);
+            IHttpContextAccessor httpContext = new HttpContextAccessor();
+            var User = httpContext.HttpContext?.User;
+            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value); 
+            var existingCategory = await _unitOfWork.GetRepository<Category>().GetByIdAsync(id);
+            if (existingCategory == null || existingCategory.DeletedTime.HasValue)
+            {
+                throw new KeyNotFoundException("Category not found or has been deleted.");
+            }
+            existingCategory.Name = updateCategoryModel.Name;
+            existingCategory.LastUpdatedBy = userID.ToString();
+            existingCategory.LastUpdatedTime = DateTime.Now;
             await _unitOfWork.SaveAsync();
-            return category;
         }
 
-        public async Task<Category> DeleteCategoryAsync(string id, string userId)
+
+        public async Task<Category> DeleteCategory(string id)
         {
+            IHttpContextAccessor httpContext = new HttpContextAccessor();
+            var User = httpContext.HttpContext?.User;
+            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
+
             var category = await _unitOfWork.GetRepository<Category>().GetByIdAsync(id);
             if (category == null) throw new Exception("Category not found");
 
-            category.DeletedBy = userId;
+            category.DeletedBy = userID.ToString();
             category.DeletedTime = DateTime.Now;
-
             await _unitOfWork.GetRepository<Category>().UpdateAsync(category);
             await _unitOfWork.SaveAsync();
             return category;
         }
 
-        public async Task<BasePaginatedList<Category>> GetCategoryPaginatedAsync(int pageIndex, int pageSize)
+        public async Task<BasePaginatedList<Category>> GetCategoryPaginated(int pageIndex, int pageSize)
         {
             var query = _unitOfWork.GetRepository<Category>().Entities;
             return await _unitOfWork.GetRepository<Category>().GetPagging(query, pageIndex, pageSize);
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync(string categoryId)
+        public async Task<IEnumerable<SelectProductModelView>> GetAllProducts(string categoryId)
         {
-            return await _unitOfWork.GetRepository<Product>()
-                                     .Entities
-                                     .Where(p => p.CategoryId == categoryId) 
-                                     .ToListAsync();
+            var pro = await _unitOfWork.GetRepository<Product>().Entities.Where(t => !t.DeletedTime.HasValue && t.CategoryId == categoryId).ToListAsync();
+            return pro.Select(cate => new SelectProductModelView
+            {
+                CategoryId = cate.CategoryId,
+                Name = cate.Name,
+                Description = cate.Description,
+                Price = cate.Price,
+            }).ToList();
         }
-
 
     }
 }
