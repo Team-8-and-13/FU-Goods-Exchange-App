@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FUExchange.Contract.Repositories")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4d264e7af9c1d672ecfc1eeea9be57673a7ebdbe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+53555e1d4bdab7d248be3d2ed1118fa35f0d6677")]
 [assembly: System.Reflection.AssemblyProductAttribute("FUExchange.Contract.Repositories")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FUExchange.Contract.Repositories")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
