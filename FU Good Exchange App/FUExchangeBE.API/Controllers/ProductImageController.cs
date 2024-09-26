@@ -1,5 +1,9 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Services.Interface;
+using FUExchange.Core.Base;
+using FUExchange.Core.Constants;
+using FUExchange.Core.Response;
+using FUExchange.ModelViews.CategoryModelViews;
 using FUExchange.ModelViews.ProductImagesModelViews;
 using FUExchange.Services.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -20,90 +24,111 @@ namespace FUExchangeBE.API.Controllers
             _proimgService = proimgService;
         }
 
-        // Lấy hình ảnh sản phẩm theo Id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductImageById(string id)
         {
-            var productImage = await _proimgService.GetProductImageByIdAsync(id); // Gọi service để lấy ảnh theo id
-            if (productImage == null)
+            try
             {
-                return NotFound(); // Trả về 404 nếu không tìm thấy ảnh
+                var productImage = await _proimgService.GetProductImageById(id);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         productImage));
             }
-            return Ok(productImage); // Trả về 200 cùng với dữ liệu ảnh
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
+            
         }
 
-        // Lấy danh sách hình ảnh theo ProductId
         [HttpGet("by-product/{productId}")]
         public async Task<IActionResult> GetImagesByProductId(string productId)
         {
-            var productImages = await _proimgService.GetImagesbyIdPro(productId); // Gọi service để lấy danh sách hình ảnh theo ProductId
-            if (productImages == null)
+            try
             {
-                return NotFound(); // Trả về 404 nếu không tìm thấy ảnh
+                var productImages = await _proimgService.GetImagesbyIdPro(productId);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         productImages));
             }
-            return Ok(productImages); // Trả về 200 cùng với danh sách hình ảnh
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
         }
 
-        // Tạo mới một ảnh sản phẩm
         [HttpPost]
-        public async Task<IActionResult> CreateProductImage(CreateProductImageModelViews createProductImageModel)
+        public async Task<IActionResult> CreateProductImage(CreateProductImageModelViews createProductImageModel, string idPro)
         {
-            if (createProductImageModel == null)
+            try
             {
-                return BadRequest("Invalid product image data."); // Trả về 400 nếu dữ liệu không hợp lệ
+                await _proimgService.CreateProductImage(createProductImageModel, idPro);
+                return Ok(new BaseResponse<string>(
+                 statusCode: StatusCodeHelper.OK,
+                 code: StatusCodeHelper.OK.ToString(),
+                 data: "Create sucessfully."));
             }
-
-            var userName = User.Identity?.Name; // Lấy userName từ token đã authorize
-            if (string.IsNullOrEmpty(userName))
+            catch (KeyNotFoundException ex)
             {
-                return Unauthorized("User Name is not available in token."); // Trả về 401 nếu không có userName
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
             }
-
-            var proimg = new ProductImage
-            {
-                ProductId = createProductImageModel.ProductId,
-                Description = createProductImageModel.Description,
-                Image = createProductImageModel.Image,
-                CreatedBy = userName // Gán người tạo ảnh từ token
-            };
-
-            var newProductImg = await _proimgService.CreateProductImageAsync(proimg); // Gọi service để tạo mới ảnh
-            return CreatedAtAction(nameof(GetProductImageById), new { id = newProductImg.Id }, newProductImg); // Trả về 201 cùng với URL của ảnh mới
+           
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProductImage(string id, UpdateProductImageModelViews updateProductImageModel)
         {
-            if (updateProductImageModel == null)
+            try
             {
-                return BadRequest("Invalid product image data.");
+                await _proimgService.UpdateProductImage(id, updateProductImageModel);
+                return Ok(new BaseResponse<string>(
+                 statusCode: StatusCodeHelper.OK,
+                 code: StatusCodeHelper.OK.ToString(),
+                 data: "Update sucessfully."));
             }
-
-            var existingProductImage = await _proimgService.GetProductImageByIdAsync(id);
-            if (existingProductImage == null)
+            catch (KeyNotFoundException ex)
             {
-                return NotFound();
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
             }
-
-            existingProductImage.Description = updateProductImageModel.Description;
-            existingProductImage.Image = updateProductImageModel.Image;
-            existingProductImage.LastUpdatedBy = User.Identity?.Name;
-
-            var updatedProductImg = await _proimgService.UpdateProductIamgeAsync(existingProductImage); // Gọi service để cập nhật ảnh
-            return Ok(updatedProductImg); // Trả về 200 cùng với ảnh đã cập nhật
         }
 
-        // Xóa một ảnh sản phẩm (Đánh dấu đã xóa)
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductImage(string id)
         {
-            var existingProductImage = await _proimgService.GetProductImageByIdAsync(id);
-            if (existingProductImage == null)
+            try
             {
-                return NotFound(); // Trả về 404 nếu không tìm thấy ảnh
+                await _proimgService.DeleteProductImage(id);
+                return Ok(new BaseResponse<string>(
+                 statusCode: StatusCodeHelper.OK,
+                 code: StatusCodeHelper.OK.ToString(),
+                 data: "Delete sucessfully."));
             }
-            existingProductImage.DeletedBy = User.Identity?.Name;
-            var deletedProductImage = await _proimgService.DeleteProductIamgeAsync(id); // Gọi service để đánh dấu đã xóa
-            return Ok(deletedProductImage); // Trả về 200 cùng với ảnh đã xóa
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
+            
         }
     }
 }

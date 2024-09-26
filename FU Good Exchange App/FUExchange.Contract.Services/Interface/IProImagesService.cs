@@ -1,12 +1,14 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
+using FUExchange.ModelViews.CategoryModelViews;
+using FUExchange.ModelViews.ProductImagesModelViews;
 namespace FUExchange.Contract.Services.Interface
 {
     public interface IProImagesService
     {
-        Task<ProductImage> CreateProductImageAsync(ProductImage proimg);
-        Task<ProductImage> UpdateProductIamgeAsync(ProductImage proimg);
-        Task<ProductImage> DeleteProductIamgeAsync(string id);
-        Task<IEnumerable<ProductImage>> GetImagesbyIdPro(string productId); // Trả về danh sách hình ảnh theo ProductId
-        Task<ProductImage> GetProductImageByIdAsync(string id);
+        Task CreateProductImage(CreateProductImageModelViews createproimg, string idPro);
+        Task UpdateProductImage(string id, UpdateProductImageModelViews createproimg);
+        Task<ProductImage> DeleteProductImage(string id);
+        Task<IEnumerable<ProductImage>> GetImagesbyIdPro(string productId);
+        Task<ProductImage> GetProductImageById(string id);
     }
 }

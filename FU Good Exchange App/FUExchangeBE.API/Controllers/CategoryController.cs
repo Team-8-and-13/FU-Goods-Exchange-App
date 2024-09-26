@@ -1,5 +1,6 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Services.Interface;
+using FUExchange.Core;
 using FUExchange.Core.Base;
 using FUExchange.Core.Constants;
 using FUExchange.ModelViews.CategoryModelViews;
@@ -23,85 +24,122 @@ namespace FUExchangeBE.API.Controllers
         {
             _categoryService = categoryService;
         }
+        /// <summary>
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories(int pageIndex = 1, int pageSize = 2)
         {
-            var categories = await _categoryService.GetAllCategories();
-            return Ok(new BaseResponse<IEnumerable<CategoriesModelView>>(
-             statusCode: StatusCodeHelper.OK,
-             code: StatusCodeHelper.OK.ToString(),
-             data: categories));
+            var categories = await _categoryService.GetAllCategories(pageIndex, pageSize);
+            return Ok(categories);
         }
+
         [HttpGet("{categoryId}/products")]
-        public async Task<IActionResult> GetAllProducts(string categoryId)
+        public async Task<IActionResult> GetAllProductsByIDCategory(string categoryId, int pageIndex = 1, int pageSize = 2)
         {
-            var products = await _categoryService.GetAllProducts(categoryId);
-            return Ok(new BaseResponse<IEnumerable<SelectProductModelView>>(
-             statusCode: StatusCodeHelper.OK,
-             code: StatusCodeHelper.OK.ToString(),
-             data: products));
+            try
+            {
+                var products = await _categoryService.GetAllProductsbyIdCategory(categoryId, pageIndex, pageSize);
+                return Ok(new BaseResponse<BasePaginatedList<Product>>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: products
+                ));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
         }
+
 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(string id)
         {
-            var category = await _categoryService.GetCategoryById(id);
-            if (category == null)
-                return NotFound("Category not found or has been deleted.");
-
-            return Ok(new BaseResponse<CategoriesModelView>(
-             statusCode: StatusCodeHelper.OK,
-             code: StatusCodeHelper.OK.ToString(),
-             data: category));
+            try
+            {
+                var category = await _categoryService.GetCategoryById(id);
+                return Ok(new BaseResponse<CategoriesModelView>(
+                 statusCode: StatusCodeHelper.OK,
+                 code: StatusCodeHelper.OK.ToString(),
+                 data: category));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateCategory(CreateCategoryModelViews createCategoryModel)
         {
-            if (createCategoryModel == null)
+            
+            try
             {
-                return BadRequest("Invalid category data.");
+                await _categoryService.CreateCategory(createCategoryModel);
+                return Ok(new BaseResponse<string>(
+                 statusCode: StatusCodeHelper.OK,
+                 code: StatusCodeHelper.OK.ToString(),
+                 data: "Create sucessfully."));
             }
-            await _categoryService.CreateCategory(createCategoryModel);
-            return Ok(new BaseResponse<string>(
-             statusCode: StatusCodeHelper.OK,
-             code: StatusCodeHelper.OK.ToString(),
-             data: "Create sucessfully."));
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(string id, CreateCategoryModelViews updateCategoryModel)
         {
-            if (updateCategoryModel == null)
+            try
             {
-                return BadRequest("Invalid category data.");
+                await _categoryService.UpdateCategory(id, updateCategoryModel);
+                return Ok(new BaseResponse<string>(
+                 statusCode: StatusCodeHelper.OK,
+                 code: StatusCodeHelper.OK.ToString(),
+                 data: "Update sucessfully."));
             }
-            await _categoryService.UpdateCategory(id, updateCategoryModel);
-            return Ok(new BaseResponse<string>(
-             statusCode: StatusCodeHelper.OK,
-             code: StatusCodeHelper.OK.ToString(),
-             data: "Update sucessfully."));
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }            
         }
-
-
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {
-            await _categoryService.DeleteCategory(id);
-            return Ok(new BaseResponse<string>(
-             statusCode: StatusCodeHelper.OK,
-             code: StatusCodeHelper.OK.ToString(),
-             data: "Delete sucessfully."));
-        }
-
-        [HttpGet("paged")]
-        public async Task<IActionResult> GetCategoryPaginated([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 2)
-        {
-            var paginatedCategory = await _categoryService.GetCategoryPaginated(pageIndex, pageSize);
-            return Ok(paginatedCategory);
+            try
+            {
+                await _categoryService.DeleteCategory(id);
+                return Ok(new BaseResponse<string>(
+                 statusCode: StatusCodeHelper.OK,
+                 code: StatusCodeHelper.OK.ToString(),
+                 data: "Delete sucessfully."));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
         }
     }
 }
