@@ -11,8 +11,8 @@ namespace FUExchange.Contract.Services.Interface
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetAllProductsAsync();
-        Task<IEnumerable<Product>> GetAllApproveProductsAsync();
+        Task<BasePaginatedList<Product>> GetAllProductsFromModerator(int pageIndex, int pageSize);
+        Task<BasePaginatedList<Product>> GetAllProductsFromUser(int pageIndex, int pageSize);
         Task<Product?> GetProductByIdAsync(string id);
         Task CreateProduct(CreateProductModelView createProductModelView);
         Task UpdateProduct(string productId, UpdateProductModelView updateProductModelView);
