@@ -2,7 +2,8 @@
 {
     public class CreateCommentModelViews
     {
-        public string ProductId { get; set; }
-        public string CommentText { get; set; }
+        public string? ProductId { get; set; }
+        public string? CommentText { get; set; }
+        
     }
 }
