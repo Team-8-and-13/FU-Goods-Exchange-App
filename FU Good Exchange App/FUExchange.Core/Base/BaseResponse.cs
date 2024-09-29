@@ -39,5 +39,10 @@ namespace FUExchange.Core.Base
         {
             return new BaseResponse<T>(StatusCodeHelper.OK, StatusCodeHelper.OK.Name(), mess);
         }
+
+        public static object? ErrorResponse(string v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
