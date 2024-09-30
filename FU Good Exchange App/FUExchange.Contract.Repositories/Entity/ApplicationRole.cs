@@ -14,7 +14,6 @@ namespace FUExchange.Contract.Repositories.Entity
 
         public const string Admin = "Admin";
         public const string UserPolicy = "UserPolicy";
-        public const string Seller = "Seller";
         public const string Moderator = "Moderator";
 
         public ApplicationRole()
