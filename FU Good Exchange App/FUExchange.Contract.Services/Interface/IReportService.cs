@@ -1,4 +1,4 @@
-﻿using FUExchange.Contract.Repositories.Entity;
+using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Core;
 using FUExchange.ModelViews.ReportModelViews;
 
@@ -15,3 +15,4 @@ namespace FUExchange.Contract.Services.Interface
         Task<ReportResponseModel?> GetReportByIdAsync(string id);
     }
 }
+
