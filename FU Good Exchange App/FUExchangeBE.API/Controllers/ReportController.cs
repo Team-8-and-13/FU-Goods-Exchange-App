@@ -157,5 +157,29 @@ namespace FUExchangeBE.API.Controllers
                 data: reports
             ));
         }
+        //kiểm tra trạng thái của report
+        [HttpGet("{id}/status")]
+        public async Task<IActionResult> CheckReportStatus(string id)
+        {
+            try
+            {
+                var status = await _reportService.CheckReportStatus(id);
+                return Ok(new BaseResponse<bool>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: status
+                ));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
+        }
+
+
     }
 }

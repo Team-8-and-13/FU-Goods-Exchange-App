@@ -13,5 +13,6 @@ namespace FUExchange.Contract.Services.Interface
         Task<Report> DeleteReport(string id);
         Task<IEnumerable<ReportResponseModel>> GetReportsByReason(string reason);
         Task<ReportResponseModel?> GetReportByIdAsync(string id);
+        Task<bool> CheckReportStatus(string id);
     }
 }
