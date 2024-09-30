@@ -181,8 +181,27 @@ namespace FUExchange.Services.Service
                 throw new KeyNotFoundException("Report not found or has been deleted.");
             }
 
-            // Trả về trạng thái của report
             return report.Status;
         }
+        //Thêm API check trạng thái report cho admin
+        public async Task<ReportStatusResponseModel> CheckReportStatusForAdminAsync(string id)
+        {
+            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
+            if (report == null || report.DeletedTime.HasValue)
+            {
+                throw new KeyNotFoundException("Report not found or has been deleted.");
+            }
+
+            return new ReportStatusResponseModel
+            {
+                ReportId = report.Id.ToString(),
+                Status = report.Status,
+                CreatedBy = report.CreatedBy,
+                CreatedTime = report.CreatedTime,
+                LastUpdatedBy = report.LastUpdatedBy,
+                LastUpdatedTime = report.LastUpdatedTime
+            };
+        }
+
     }
 }

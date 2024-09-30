@@ -179,7 +179,29 @@ namespace FUExchangeBE.API.Controllers
                 ));
             }
         }
-
+        //Thêm API check trạng thái report cho admin
+        [HttpGet("{id}/admin-status")]
+        [Authorize(Policy = "AdminPolicy")]
+        public async Task<IActionResult> CheckReportStatusForAdmin(string id)
+        {
+            try
+            {
+                var reportStatus = await _reportService.CheckReportStatusForAdminAsync(id);
+                return Ok(new BaseResponse<ReportStatusResponseModel>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: reportStatus
+                ));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
+        }
 
     }
 }

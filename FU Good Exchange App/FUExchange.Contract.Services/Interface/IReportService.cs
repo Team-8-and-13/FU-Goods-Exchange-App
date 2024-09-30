@@ -14,5 +14,6 @@ namespace FUExchange.Contract.Services.Interface
         Task<IEnumerable<ReportResponseModel>> GetReportsByReason(string reason);
         Task<ReportResponseModel?> GetReportByIdAsync(string id);
         Task<bool> CheckReportStatus(string id);
+        Task<ReportStatusResponseModel> CheckReportStatusForAdminAsync(string id);
     }
 }
