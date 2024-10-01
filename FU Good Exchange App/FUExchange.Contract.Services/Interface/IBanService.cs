@@ -8,7 +8,7 @@ namespace FUExchange.Contract.Services.Interface
     public interface IBanService
     {
         Task<BasePaginatedList<Ban>> GetAllBans(int pageIndex, int pageSize);
-        Task<BanModelView?> GetBan(string id);
+        Task<Ban> GetBan(string id);
         Task ApproveReport(string rpId, CreateBanModelView createBanModel);
         Task UpdateBan(string id, CreateBanModelView updateBanModel);
         Task<Ban> DeleteBan(string id);

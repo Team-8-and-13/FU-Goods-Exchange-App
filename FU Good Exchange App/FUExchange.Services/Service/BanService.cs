@@ -24,7 +24,7 @@ namespace FUExchange.Services.Service
             return await _unitOfWork.GetRepository<Ban>().GetPagging(query, pageIndex, pageSize);
         }
 
-        public async Task<BanModelView?> GetBan(string id)
+        public async Task<Ban?> GetBan(string id)
         {
             var ban = await _unitOfWork.GetRepository<Ban>().GetByIdAsync(id);
             if (ban == null)
@@ -36,13 +36,8 @@ namespace FUExchange.Services.Service
                 throw new KeyNotFoundException("Ban has been deleted.");
             }
 
-            var ba = new BanModelView
-            {
-                ReportId = ban.ReportId,
-                Expires = ban.Expires
-            };
 
-            return ba ??
+            return ban ??
                  throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy "); ;
         }
 
