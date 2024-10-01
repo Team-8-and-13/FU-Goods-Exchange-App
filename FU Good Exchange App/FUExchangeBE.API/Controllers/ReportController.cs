@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using FUExchange.Core.Base;
+using FUExchange.ModelViews.ReportModelsView;
 namespace FUExchangeBE.API.Controllers
 {
     [Route("api/[controller]")]
@@ -97,7 +98,7 @@ namespace FUExchangeBE.API.Controllers
 
         // Update Report
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateReport(string id, [FromBody] ReportRequestModel reportRequest)
+        public async Task<IActionResult> UpdateReport(string id, [FromBody] UpdateReportRequestModel updateReportRequest) // Đảm bảo dùng đúng kiểu
         {
             if (!ModelState.IsValid)
             {
@@ -106,7 +107,7 @@ namespace FUExchangeBE.API.Controllers
 
             try
             {
-                await _reportService.UpdateReport(id, reportRequest);
+                await _reportService.UpdateReport(id, updateReportRequest);
                 return Ok(new BaseResponse<string>(
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
@@ -122,6 +123,8 @@ namespace FUExchangeBE.API.Controllers
                 ));
             }
         }
+
+
 
         // Delete Report
         [HttpDelete("{id}")]

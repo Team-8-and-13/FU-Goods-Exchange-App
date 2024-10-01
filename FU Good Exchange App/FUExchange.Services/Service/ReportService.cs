@@ -3,6 +3,7 @@ using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
 using FUExchange.Core.Constants;
+using FUExchange.ModelViews.ReportModelsView;
 using FUExchange.ModelViews.ReportModelViews;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,11 @@ namespace FUExchange.Services.Service
         {
             _unitOfWork = unitOfWork;
         }
+
+        public ReportService()
+        {
+        }
+
         public async Task<ReportResponseModel?> GetReportByIdAsync(string id)
         {
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
@@ -58,25 +64,24 @@ namespace FUExchange.Services.Service
 
             return new ReportResponseModel
             {
-                Id = report.Id.ToString(),
+                Id = report.Id, // Nếu Id là Guid
+                UserId = report.UserId, // Gán UserId đúng kiểu Guid
                 Reason = report.Reason,
                 Status = report.Status
             };
         }
+
         public async Task CreateReport(ReportRequestModel reportRequest)
         {
-            IHttpContextAccessor httpContext = new HttpContextAccessor();
-            var user = httpContext.HttpContext?.User;
-            var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
+            if (reportRequest == null || string.IsNullOrEmpty(reportRequest.UserId))
             {
-                throw new KeyNotFoundException("UserId is invalid.");
+                throw new ArgumentException("UserId is required.");
             }
 
-            if (reportRequest == null)
+            // Chuyển đổi từ string sang Guid
+            if (!Guid.TryParse(reportRequest.UserId, out Guid userId))
             {
-                throw new KeyNotFoundException("Invalid report data.");
+                throw new ArgumentException("Invalid UserId format.");
             }
 
             var report = new Report
@@ -84,14 +89,17 @@ namespace FUExchange.Services.Service
                 UserId = userId,
                 Reason = reportRequest.Reason,
                 Status = false,
-                CreatedBy = userId.ToString(), 
+                CreatedBy = userId.ToString(),
                 CreatedTime = DateTime.Now
             };
 
             await _unitOfWork.GetRepository<Report>().InsertAsync(report);
             await _unitOfWork.SaveAsync();
         }
-        public async Task UpdateReport(string id, ReportRequestModel updateReportRequest)
+
+
+
+        public async Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest)
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
@@ -128,6 +136,7 @@ namespace FUExchange.Services.Service
 
             await _unitOfWork.SaveAsync();
         }
+
         public async Task<Report> DeleteReport(string id)
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
