@@ -8,6 +8,7 @@ using FUExchange.Contract.Repositories.Entity;
 using FUExchange.ModelViews.AuthModelViews;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Repositories.Entity;
+using FUExchange.Contract.Repositories.Interface;
 
 namespace FUExchange.Services.Service
 {
@@ -16,12 +17,14 @@ namespace FUExchange.Services.Service
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration)
+        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string> LoginAsync(LoginModelView model)
@@ -38,6 +41,12 @@ namespace FUExchange.Services.Service
             {
                 // Handle invalid password
                 return string.Empty;
+            }
+
+            bool reported = _unitOfWork.GetRepository<Report>().Entities.Any(u => u.UserId == user.Id && u.Status);
+            if (reported)
+            {
+                return user.UserName + " have been blocked !!!";
             }
 
             var roles = await _userManager.GetRolesAsync(user);
