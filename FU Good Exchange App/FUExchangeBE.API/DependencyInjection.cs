@@ -27,7 +27,8 @@ namespace FUExchangeBE.API
         {
             services.AddDbContext<DatabaseContext>(options =>
             {
-                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("MyCnn"));
+                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("MyCnn"),
+                     options => options.MigrationsAssembly("FUExchange.Contract.Repositories"));
             });
         }
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using FUExchange.Core.Base;
+using FUExchange.ModelViews.ReportModelsView;
 namespace FUExchangeBE.API.Controllers
 {
     [Route("api/[controller]")]
@@ -66,7 +67,7 @@ namespace FUExchangeBE.API.Controllers
         public static class ResponseCodeConstants
         {
             public const string NOT_FOUND = "NOT_FOUND";
-            public const string BAD_REQUEST = "BAD_REQUEST"; 
+            public const string BAD_REQUEST = "BAD_REQUEST";
         }
         [HttpPost]
         public async Task<IActionResult> CreateReport([FromBody] ReportRequestModel reportRequest)
@@ -97,7 +98,7 @@ namespace FUExchangeBE.API.Controllers
 
         // Update Report
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateReport(string id, [FromBody] ReportRequestModel reportRequest)
+        public async Task<IActionResult> UpdateReport(string id, [FromBody] UpdateReportRequestModel updateReportRequest) // Đảm bảo dùng đúng kiểu
         {
             if (!ModelState.IsValid)
             {
@@ -106,7 +107,7 @@ namespace FUExchangeBE.API.Controllers
 
             try
             {
-                await _reportService.UpdateReport(id, reportRequest);
+                await _reportService.UpdateReport(id, updateReportRequest);
                 return Ok(new BaseResponse<string>(
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
@@ -122,6 +123,8 @@ namespace FUExchangeBE.API.Controllers
                 ));
             }
         }
+
+
 
         // Delete Report
         [HttpDelete("{id}")]
@@ -157,5 +160,51 @@ namespace FUExchangeBE.API.Controllers
                 data: reports
             ));
         }
+        //kiểm tra trạng thái của report
+        [HttpGet("{id}/status")]
+        public async Task<IActionResult> CheckReportStatus(string id)
+        {
+            try
+            {
+                var status = await _reportService.CheckReportStatus(id);
+                return Ok(new BaseResponse<bool>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: status
+                ));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
+        }
+        //Thêm API check trạng thái report cho admin
+        [HttpGet("{id}/admin-status")]
+        [Authorize(Policy = "AdminPolicy")]
+        public async Task<IActionResult> CheckReportStatusForAdmin(string id)
+        {
+            try
+            {
+                var reportStatus = await _reportService.CheckReportStatusForAdminAsync(id);
+                return Ok(new BaseResponse<ReportStatusResponseModel>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: reportStatus
+                ));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
+        }
+
     }
 }

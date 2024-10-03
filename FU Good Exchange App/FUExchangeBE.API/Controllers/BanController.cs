@@ -40,7 +40,7 @@ namespace FUExchangeBE.API.Controllers
             try
             {
                 var ban = await _banService.GetBan(id);
-                return Ok(new BaseResponse<BanModelView>(
+                return Ok(new BaseResponse<Ban>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
                  data: ban));
