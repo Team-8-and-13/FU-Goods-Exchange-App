@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FUExchange.ModelViews.ReportModelViews
+namespace FUExchange.ModelViews.ReportModelsView
 {
-    public class ReportRequestModel
+    public class UpdateReportRequestModel
     {
-        public string UserId { get; set; }
         public string Reason { get; set; } = string.Empty;
+        public bool Status { get; set; }
     }
 }
