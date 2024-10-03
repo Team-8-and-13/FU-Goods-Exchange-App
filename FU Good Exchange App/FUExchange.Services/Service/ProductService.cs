@@ -38,20 +38,16 @@ namespace FUExchange.Services.Service
         }
         public async Task CreateProduct(CreateProductModelView createProductModelView)
         {
-            if (createProductModelView == null)
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Error Product");
-            }
             IHttpContextAccessor httpContext = new HttpContextAccessor();
-            var User = httpContext.HttpContext?.User;
+            var user = httpContext.HttpContext?.User;
             var product = new Product
             {
                 CategoryId = createProductModelView.CategoryId,
                 Name = createProductModelView.Name,
                 Price = createProductModelView.Price,
                 Description = createProductModelView.Description,
-                SellerId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value), // lấy userId
-                CreatedBy = User.Identity.Name // Lấy userName từ token đã được authorize
+                SellerId = new Guid(user.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value), // lấy userId
+                CreatedBy = user.Identity.Name // Lấy userName từ token đã được authorize
             };
 
             await _unitOfWork.GetRepository<Product>().InsertAsync(product);
@@ -63,11 +59,8 @@ namespace FUExchange.Services.Service
             var User = httpContext.HttpContext?.User;
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
 
-            Product existProduct = await _unitOfWork.GetRepository<Product>().GetByIdAsync(productId);
-            if (existProduct == null)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy Product");
-            }
+            Product? existProduct = await _unitOfWork.GetRepository<Product>().GetByIdAsync(productId) ??
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy sản phẩm");
             if (existProduct.SellerId != userID) // Chỉ user tạo product mới được cập nhật product
             {
                 throw new ErrorException(StatusCodes.Status401Unauthorized, ResponseCodeConstants.UNAUTHORIZED, "Unauthorized !!!");
@@ -95,11 +88,11 @@ namespace FUExchange.Services.Service
             Guid userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
             if (product.SellerId != userId)
             {
-                throw new ErrorException(StatusCodes.Status401Unauthorized, ResponseCodeConstants.UNAUTHORIZED, "Unauthorized !!!");
+                throw new ErrorException(StatusCodes.Status401Unauthorized, ResponseCodeConstants.UNAUTHORIZED, "Bạn không có quyền xóa sản phẩm này!");
             }
             else
             {
-                product.DeletedBy = userName;
+                product.DeletedBy = userName;//id 
                 await _unitOfWork.GetRepository<Product>().UpdateAsync(product);
                 await _unitOfWork.SaveAsync();
             }          

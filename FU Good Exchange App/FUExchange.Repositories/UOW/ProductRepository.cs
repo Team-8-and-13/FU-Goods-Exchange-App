@@ -30,7 +30,7 @@ namespace FUExchange.Repositories.UOW
         }
         public async Task RateProduct(string id, int star)
         {
-            var product = await _context.Products.FindAsync(id);
+            Product? product = await _context.Products.FindAsync(id);
             product.Rating += 1;
             product.NumberOfStar = (double)(product.NumberOfStar + star) / product.Rating;
             await SaveAsync();

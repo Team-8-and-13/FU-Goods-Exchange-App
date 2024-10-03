@@ -8,6 +8,6 @@ namespace FUExchange.Contract.Repositories.Entity
         public string? ReportId { get; set; }
         public DateTime? Expires { get; set; }
         [ForeignKey("ReportId")]
-        public Report Report { get; set; }
+        public Report? Report { get; set; }
     }
 }

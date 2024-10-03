@@ -1,15 +1,14 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Services.Interface;
+using FUExchange.Core.Constants;
 using FUExchange.Core.Utils;
 using FUExchange.ModelViews.UserModelViews;
 using FUExchange.Repositories.Entity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using static FUExchange.Core.Base.BaseException;
 
 namespace FUExchange.Services.Service
 {
@@ -56,8 +55,10 @@ namespace FUExchange.Services.Service
                 .Include(u => u.UserInfo)
                 .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
 
-            if (user == null) return null;
-
+            if (user == null)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Nguoi dung khong ton tai!");
+            }
             var roles = await _userManager.GetRolesAsync(user);
 
             return new UserResponseModel
@@ -112,7 +113,7 @@ namespace FUExchange.Services.Service
             user.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
             // If password needs to be updated, hash the new password
-            if (!string.IsNullOrEmpty(model.Password))
+            if (!string.IsNullOrWhiteSpace(model.Password))              
             {
                 user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, model.Password);
             }
@@ -139,7 +140,7 @@ namespace FUExchange.Services.Service
         }
 
 
-        public async Task<bool> DeleteUser(string userId, string adminId)
+        public async Task<bool> DeleteUser(string userId, string? adminId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
@@ -160,10 +161,9 @@ namespace FUExchange.Services.Service
             {
                 Id = user.Id.ToString(),
                 Email = user.Email,
-                Username = user.UserName,
-                FullName = user.UserInfo?.FullName
+                Username = user.UserName != null ? user.UserName : "",
+                FullName = user.UserInfo != null ? user.UserInfo.FullName : ""
             };
         }
     }
-
 }
