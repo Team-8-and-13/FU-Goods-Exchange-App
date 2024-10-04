@@ -8,7 +8,7 @@ namespace FUExchange.ModelViews.ReportModelViews
 {
     public class ReportRequestModel
     {
-        public string UserId { get; set; }
+        public string UserId { get; set; }=string.Empty;
         public string Reason { get; set; } = string.Empty;
     }
 }

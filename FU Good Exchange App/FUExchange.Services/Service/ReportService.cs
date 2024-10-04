@@ -19,11 +19,6 @@ namespace FUExchange.Services.Service
         {
             _unitOfWork = unitOfWork;
         }
-
-        public ReportService()
-        {
-        }
-
         public async Task<ReportResponseModel?> GetReportByIdAsync(string id)
         {
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
