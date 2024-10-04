@@ -12,7 +12,6 @@ namespace FUExchange.Contract.Services.Interface
         Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest);
         Task<Report> DeleteReport(string id);
         Task<IEnumerable<ReportResponseModel>> GetReportsByReason(string reason);
-        Task<ReportResponseModel?> GetReportByIdAsync(string id);
         Task<bool> CheckReportStatus(string id);
         Task<ReportStatusResponseModel> CheckReportStatusForAdminAsync(string id);
         Task CreateReport(ReportRequestModel reportRequest);
