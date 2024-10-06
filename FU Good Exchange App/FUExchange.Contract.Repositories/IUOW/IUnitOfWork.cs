@@ -7,7 +7,6 @@ namespace FUExchange.Contract.Repositories.Interface
     {
 
         IGenericRepository<T> GetRepository<T>() where T : BaseEntity;
-        IProductRepository GetProductRepository();
         ICommentRepository GetCommentRepository();
         IProImagesRepository GetProductImagRepository();
         void Save();

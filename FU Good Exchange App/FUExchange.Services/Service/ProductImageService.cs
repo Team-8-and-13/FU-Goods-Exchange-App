@@ -21,7 +21,7 @@ namespace FUExchange.Services.Service
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
-            var idProduct = await _unitOfWork.GetProductRepository().GetByIdAsync(idPro);
+            var idProduct = await _unitOfWork.GetRepository<Product>().GetByIdAsync(idPro);
             if (idProduct == null)
             {
                 throw new KeyNotFoundException("Find not id product.");
