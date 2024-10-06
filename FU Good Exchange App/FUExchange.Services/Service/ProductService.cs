@@ -41,7 +41,7 @@ namespace FUExchange.Services.Service
         public async Task<SelectProductModelView?> GetProductByIdAsync(string id)
         {
             Product? product = await _unitOfWork.GetRepository<Product>().Entities.Where(c => c.Id == id && c.Approve == true && !c.DeletedTime.HasValue).FirstOrDefaultAsync() ??
-                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy Product");
+                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy sản phẩm");
             SelectProductModelView responeProduct = _mapper.Map<SelectProductModelView>(product);
             return responeProduct;
         }
