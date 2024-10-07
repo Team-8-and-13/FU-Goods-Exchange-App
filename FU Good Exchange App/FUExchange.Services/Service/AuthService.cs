@@ -7,6 +7,9 @@ using System.Text;
 using FUExchange.Contract.Repositories.Entity;
 using FUExchange.ModelViews.AuthModelViews;
 using FUExchange.Contract.Services.Interface;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using FUExchange.Repositories.Entity;
 
 namespace FUExchange.Services.Service
@@ -26,44 +29,42 @@ namespace FUExchange.Services.Service
 
         public async Task<string> LoginAsync(LoginModelView model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user == null)
+            try
             {
-                // Handle user not found
+                var user = await _userManager.FindByNameAsync(model.Username);
+                if (user == null || !(await _userManager.CheckPasswordAsync(user, model.Password)))
+                {
+                    return string.Empty; // Invalid credentials
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+                var authClaims = new List<Claim>
+                {
+                    new Claim("UserId", user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+
+                foreach (var role in roles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var token = new JwtSecurityToken(
+                    issuer: _configuration["Jwt:Issuer"],
+                    audience: _configuration["Jwt:Audience"],
+                    expires: DateTime.UtcNow.AddHours(10),
+                    claims: authClaims,
+                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                );
+
+                return new JwtSecurityTokenHandler().WriteToken(token);
+            }
+            catch (Exception)
+            {
                 return string.Empty;
             }
-
-            var passwordValid = await _userManager.CheckPasswordAsync(user, model.Password);
-            if (!passwordValid)
-            {
-                // Handle invalid password
-                return string.Empty;
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var authClaims = new List<Claim>
-            {
-                new Claim("UserId", user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            // Add role claims
-            foreach (var role in roles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                expires: DateTime.UtcNow.AddHours(10),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public async Task<IdentityResult> RegisterAsync(RegisterModelView model)
@@ -85,8 +86,7 @@ namespace FUExchange.Services.Service
                 }
                 else
                 {
-                    // Handle case where "UserPolicy" role does not exist
-                    result = IdentityResult.Failed(new IdentityError
+                    return IdentityResult.Failed(new IdentityError
                     {
                         Description = "Default role 'UserPolicy' does not exist."
                     });

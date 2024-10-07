@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FUExchange.ModelViews.UserModelViews;
 using FUExchange.Contract.Services.Interface;
-using FUExchange.Core.Base;
-using FUExchange.ModelViews.UserModelViews;
-using System.Collections.Generic;
+using FUExchange.Core.Constants;
+using FUExchange.Core.Response;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using static FUExchange.Core.Base.BaseException;
+using FUExchange.Core.Base;
 
 namespace FUExchangeBE.API.Controllers
 {
@@ -21,50 +23,99 @@ namespace FUExchangeBE.API.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        [HttpGet("Get_All_Users")]
+        public async Task<IActionResult> GetAllUsers(int pageIndex = 1, int pageSize = 10)
         {
-            var users = await _userService.GetAll();
-            return Ok(BaseResponse<IList<UserResponseModel>>.OkResponse(users));
+            var users = await _userService.GetAll(pageIndex, pageSize);
+            return Ok(new BaseResponseModel(
+                StatusCodes.Status200OK,
+                ResponseCodeConstants.SUCCESS,
+                users));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
-            var user = await _userService.GetById(id);
-            if (user == null) return NotFound();
-
-            return Ok(BaseResponse<UserResponseModel>.OkResponse(user));
+            try
+            {
+                var user = await _userService.GetById(id);
+                return user != null
+                    ? Ok(new BaseResponseModel(
+                        StatusCodes.Status200OK,
+                        ResponseCodeConstants.SUCCESS,
+                        user))
+                    : NotFound(new BaseResponseModel(
+                        StatusCodes.Status404NotFound,
+                        ResponseCodeConstants.NOT_FOUND,
+                        "Không tìm thấy người dùng"));
+            }
+            catch (ErrorException ex)
+            {
+                return NotFound(new BaseResponseModel(
+                    StatusCodes.Status404NotFound,
+                    ResponseCodeConstants.NOT_FOUND,
+                    ex.Message));
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser(CreateUserModel model)
+        public async Task<IActionResult> CreateUser(CreateUserModel createUserModel)
         {
-            var adminId = User.Identity?.Name;
-            var result = await _userService.CreateUser(model, adminId);
-            if (result) return Ok(BaseResponse<bool>.OkResponse("Taoj nguoi dung thanh cong"));
+            var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            return BadRequest(BaseResponse<bool>.ErrorResponse("Failed to create user"));
+            var isSuccess = await _userService.CreateUser(createUserModel, adminId);
+            if (isSuccess)
+            {
+                return Ok(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: "Tạo người dùng thành công."));
+            }
+
+            return BadRequest(new BaseResponse<string>(
+                statusCode: StatusCodeHelper.BadRequest,
+                code: ResponseCodeConstants.ERROR,
+                data: "Tạo người dùng không thành công."));
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, UpdateUserModel model)
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateUser(string userId, UpdateUserModel updateUserModel)
         {
-            var adminId = User.Identity?.Name; // Get the admin's ID
-            var result = await _userService.UpdateUser(id, model, adminId);
-            if (result) return Ok(BaseResponse<bool>.OkResponse("Sua nguoi dung thanh cong"));
+            var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Get admin ID from token
 
-            return BadRequest(BaseResponse<bool>.ErrorResponse("Failed to update user"));
+            var isSuccess = await _userService.UpdateUser(userId, updateUserModel, adminId);
+            if (isSuccess)
+            {
+                return Ok(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: "Cập nhật người dùng thành công."));
+            }
+
+            return NotFound(new BaseResponse<string>(
+                statusCode: StatusCodeHelper.BadRequest,
+                code: ResponseCodeConstants.NOT_FOUND,
+                data: "Cập nhật người dùng không thành công."));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(string id)
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> DeleteUser(string userId)
         {
-            var adminId = User.Identity?.Name; // Get the admin's ID
-            var result = await _userService.DeleteUser(id, adminId);
-            if (result) return Ok(BaseResponse<bool>.OkResponse("Xoa nguoi dung thanh cong"));
+            var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Get admin ID from token
 
-            return BadRequest(BaseResponse<bool>.ErrorResponse("Failed to delete user"));
+            var isSuccess = await _userService.DeleteUser(userId, adminId);
+            if (isSuccess)
+            {
+                return Ok(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: "Xóa người dùng thành công."));
+            }
+
+            return NotFound(new BaseResponse<string>(
+                statusCode: StatusCodeHelper.BadRequest,
+                code: ResponseCodeConstants.NOT_FOUND,
+                data: "Xóa người dùng không thành công."));
         }
     }
 }

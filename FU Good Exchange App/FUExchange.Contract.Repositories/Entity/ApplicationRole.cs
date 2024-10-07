@@ -13,7 +13,7 @@ namespace FUExchange.Contract.Repositories.Entity
         public DateTimeOffset? DeletedTime { get; set; }
 
         public const string Admin = "Admin";
-        public const string UserPolicy = "UserPolicy";
+        public const string UserPolicy = "User";
         public const string Moderator = "Moderator";
 
         public ApplicationRole()
