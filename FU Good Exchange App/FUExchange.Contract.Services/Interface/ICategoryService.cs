@@ -7,11 +7,11 @@ namespace FUExchange.Contract.Services.Interface
 {
     public interface ICategoryService
     {
-        Task<BasePaginatedList<Category>> GetAllCategories(int pageIndex, int pageSize);
+        Task<BasePaginatedList<CategoriesModelView>> GetAllCategories(int pageIndex, int pageSize);
         Task<CategoriesModelView?> GetCategoryById(string id);
         Task CreateCategory(CreateCategoryModelViews createCategoryModel);
         Task UpdateCategory(string id, CreateCategoryModelViews updateCategoryModel);
-        Task<Category> DeleteCategory(string id);
-        Task<BasePaginatedList<Product>> GetAllProductsbyIdCategory(string categoryId, int pageIndex, int pageSize);
+        Task DeleteCategory(string id);
+        Task<BasePaginatedList<ProductByCategoryModelViews>> GetAllProductsbyIdCategory(string categoryId, int pageIndex, int pageSize);
     }
 }

@@ -49,85 +49,41 @@ namespace FUExchangeBE.API.Controllers
         [HttpGet("by-product/{productId}")]
         public async Task<IActionResult> GetImagesByProductId(string productId)
         {
-            try
-            {
                 var productImages = await _proimgService.GetImagesbyIdPro(productId);
                 return Ok(new BaseResponseModel(
                          StatusCodes.Status200OK,
                          ResponseCodeConstants.SUCCESS,
                          productImages));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateProductImage(CreateProductImageModelViews createProductImageModel, string idPro)
         {
-            try
-            {
                 await _proimgService.CreateProductImage(createProductImageModel, idPro);
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Create sucessfully."));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }
+                 data: "Thêm thành công"));
            
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProductImage(string id, UpdateProductImageModelViews updateProductImageModel)
         {
-            try
-            {
                 await _proimgService.UpdateProductImage(id, updateProductImageModel);
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Update sucessfully."));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }
+                 data: "Sửa thành công"));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductImage(string id)
         {
-            try
-            {
                 await _proimgService.DeleteProductImage(id);
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Delete sucessfully."));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }
+                 data: "Xóa thành công"));
             
         }
     }

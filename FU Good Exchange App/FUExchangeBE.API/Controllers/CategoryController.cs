@@ -1,4 +1,4 @@
-﻿using FUExchange.Contract.Repositories.Entity;
+﻿﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
 using FUExchange.Core.Base;
@@ -8,7 +8,6 @@ using FUExchange.ModelViews.ProductModelViews;
 using FUExchange.Services.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace FUExchangeBE.API.Controllers
 {
@@ -30,7 +29,11 @@ namespace FUExchangeBE.API.Controllers
         public async Task<IActionResult> GetAllCategories(int pageIndex = 1, int pageSize = 2)
         {
             var categories = await _categoryService.GetAllCategories(pageIndex, pageSize);
-            return Ok(categories);
+            return Ok(new BaseResponse<BasePaginatedList<CategoriesModelView>>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: categories
+                ));
         }
 
         [HttpGet("{categoryId}/products")]
@@ -39,10 +42,18 @@ namespace FUExchangeBE.API.Controllers
             try
             {
                 var products = await _categoryService.GetAllProductsbyIdCategory(categoryId, pageIndex, pageSize);
-                return Ok(new BaseResponse<BasePaginatedList<Product>>(
+                return Ok(new BaseResponse<BasePaginatedList<ProductByCategoryModelViews>>(
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
                     data: products
+                ));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return StatusCode(ex.StatusCode, new BaseResponse<string>(
+                    statusCode: (StatusCodeHelper)ex.StatusCode,
+                    code: ex.ErrorDetail.ErrorCode,
+                    data: ex.ErrorDetail.ErrorMessage?.ToString() ?? "Lỗi!"
                 ));
             }
             catch (KeyNotFoundException ex)
@@ -53,9 +64,15 @@ namespace FUExchangeBE.API.Controllers
                     data: ex.Message
                 ));
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.ServerError,
+                    code: "server_error",
+                    data: ex.Message
+                ));
+            }
         }
-
-
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(string id)
@@ -88,7 +105,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Create sucessfully."));
+                 data: "Tạo thành công"));
             }
             catch (KeyNotFoundException ex)
             {
@@ -109,7 +126,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Update sucessfully."));
+                 data: "Sửa thành công"));
             }
             catch (KeyNotFoundException ex)
             {
@@ -130,7 +147,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Delete sucessfully."));
+                 data: "Xóa thành công"));
             }
             catch (KeyNotFoundException ex)
             {
