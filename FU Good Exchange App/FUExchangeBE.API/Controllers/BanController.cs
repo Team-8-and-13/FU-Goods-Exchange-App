@@ -32,8 +32,6 @@ namespace FUExchangeBE.API.Controllers
             return Ok(bans);
         }
 
-
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBan(string id)
         {

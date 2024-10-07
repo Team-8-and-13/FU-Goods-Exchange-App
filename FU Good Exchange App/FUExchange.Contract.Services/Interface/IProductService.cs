@@ -1,4 +1,5 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
+using FUExchange.Contract.Repositories.PaggingItems;
 using FUExchange.Core;
 using FUExchange.ModelViews.ProductModelViews;
 using System;
@@ -12,8 +13,8 @@ namespace FUExchange.Contract.Services.Interface
     public interface IProductService
     {
         Task<BasePaginatedList<Product>> GetAllProductsFromModerator(int pageIndex, int pageSize);
-        Task<BasePaginatedList<Product>> GetAllProductsFromUser(int pageIndex, int pageSize);
-        Task<Product?> GetProductByIdAsync(string id);
+        Task<PaginatedList<SelectProductModelView>> GetAllProductsFromUser(int pageIndex, int pageSize);
+        Task<SelectProductModelView?> GetProductByIdAsync(string id);
         Task CreateProduct(CreateProductModelView createProductModelView);
         Task UpdateProduct(string productId, UpdateProductModelView updateProductModelView);
         Task DeleteProduct(string id);

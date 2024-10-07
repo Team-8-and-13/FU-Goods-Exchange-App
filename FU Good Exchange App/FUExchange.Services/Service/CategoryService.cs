@@ -86,7 +86,7 @@ namespace FUExchange.Services.Service
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
-            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value); 
+            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
             var existingCategory = await _unitOfWork.GetRepository<Category>().GetByIdAsync(id);
 
             if (updateCategoryModel == null)
@@ -106,7 +106,6 @@ namespace FUExchange.Services.Service
             existingCategory.LastUpdatedTime = DateTime.Now;
             await _unitOfWork.SaveAsync();
         }
-
 
         public async Task<Category> DeleteCategory(string id)
         {

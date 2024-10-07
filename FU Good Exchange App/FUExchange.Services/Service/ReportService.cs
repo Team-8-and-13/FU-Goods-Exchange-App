@@ -21,18 +21,10 @@ namespace FUExchange.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public ReportService()
-        {
-        }
-
         public async Task<ReportResponseModel?> GetReportByIdAsync(string id)
         {
-            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
-            if (report == null)
-            {
-                throw new KeyNotFoundException("Report not found.");
-            }
-            else if (report.DeletedTime.HasValue)
+            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id) ??  throw new KeyNotFoundException("Report not found.");
+            if (report.DeletedTime.HasValue)
             {
                 throw new KeyNotFoundException("Report has been deleted.");
             }
@@ -44,13 +36,6 @@ namespace FUExchange.Services.Service
                 Status = report.Status
             };
         }
-
-        public async Task<BasePaginatedList<Report>> GetAllReports(int pageIndex, int pageSize)
-        {
-            var query = _unitOfWork.GetRepository<Report>().Entities.Where(r => !r.DeletedTime.HasValue);
-            return await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
-        }
-
         public async Task<ReportResponseModel?> GetReportById(string id)
         {
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
@@ -71,6 +56,14 @@ namespace FUExchange.Services.Service
                 Status = report.Status
             };
         }
+
+        public async Task<BasePaginatedList<Report>> GetAllReports(int pageIndex, int pageSize)
+        {
+            var query = _unitOfWork.GetRepository<Report>().Entities.Where(r => !r.DeletedTime.HasValue);
+            return await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
+        }
+
+        
 
         public async Task CreateReport(ReportRequestModel reportRequest)
         {
