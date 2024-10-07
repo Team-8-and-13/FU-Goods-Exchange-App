@@ -20,10 +20,19 @@ namespace FUExchange.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<BasePaginatedList<Category>> GetAllCategories(int pageIndex, int pageSize)
+        public async Task<BasePaginatedList<CategoriesModelView>> GetAllCategories(int pageIndex, int pageSize)
         {
             var query = _unitOfWork.GetRepository<Category>().Entities.Where(p => !p.DeletedTime.HasValue);
-            return await _unitOfWork.GetRepository<Category>().GetPagging(query, pageIndex, pageSize);
+            IQueryable<Category> CateQuery = _unitOfWork.GetRepository<Category>()
+                .Entities
+                .Where(i => i.DeletedTime == null);
+            var paginatedList = await _unitOfWork.GetRepository<Category>().GetPagging(CateQuery, pageIndex, pageSize);
+            var mappedList = paginatedList.Items.Select(c => new CategoriesModelView
+            {
+                CategoryId = c.Id.ToString(), // Assuming Id is of type Guid or int, adjust if needed
+                Name = c.Name
+            }).ToList();
+            return new BasePaginatedList<CategoriesModelView>(mappedList, paginatedList.TotalItems, paginatedList.CurrentPage, paginatedList.PageSize);
         }
 
         public async Task<CategoriesModelView?> GetCategoryById(string id)
@@ -31,11 +40,11 @@ namespace FUExchange.Services.Service
             var category = await _unitOfWork.GetRepository<Category>().GetByIdAsync(id);
             if (category == null)
             {
-                throw new KeyNotFoundException("Category not found.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục không tồn tại!"); 
             }
             else if(category.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Category has been deleted.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục đã bị xóa!"); 
             }
 
             var cate = new CategoriesModelView
@@ -45,7 +54,7 @@ namespace FUExchange.Services.Service
             };
 
             return cate ??
-                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy Product"); ;
+                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy sản phẩm"); ;
         }
 
         public async Task CreateCategory(CreateCategoryModelViews createCategoryModel)
@@ -55,7 +64,7 @@ namespace FUExchange.Services.Service
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
             if(createCategoryModel == null)
             {
-                throw new KeyNotFoundException("Invalid category data.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Dữ liệu không hợp lệ."); ;
             }
             var category = new Category
             {
@@ -76,15 +85,15 @@ namespace FUExchange.Services.Service
 
             if (updateCategoryModel == null)
             {
-                throw new KeyNotFoundException("Invalid category data.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Dữ liệu không hợp lệ."); ;
             }
             if (existingCategory == null)
             {
-                throw new KeyNotFoundException("Category not found.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục không tồn tại!");
             }
             else if (existingCategory.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Category has been deleted.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục đã bị xóa!");
             }
             existingCategory.Name = updateCategoryModel.Name;
             existingCategory.LastUpdatedBy = userID.ToString();
@@ -102,7 +111,7 @@ namespace FUExchange.Services.Service
 
             if (category == null || category.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Category not found or has been deleted.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục đã bị xóa hoặc không tồn tại!");
             }
 
             category.DeletedBy = userID.ToString();
@@ -118,24 +127,37 @@ namespace FUExchange.Services.Service
             return await _unitOfWork.GetRepository<Category>().GetPagging(query, pageIndex, pageSize);
         }
 
-        public async Task<BasePaginatedList<Product>> GetAllProductsbyIdCategory(string categoryId, int pageIndex, int pageSize)
+        public async Task<BasePaginatedList<SelectProductFromCategory>> GetAllProductsbyIdCategory(string categoryId, int pageIndex, int pageSize)
         {
             var findIDCate = await _unitOfWork.GetRepository<Category>().GetByIdAsync(categoryId);
             if (findIDCate == null)
             {
-                throw new KeyNotFoundException("Category not found.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục không tồn tại");
             }
-            else if(findIDCate.DeletedTime.HasValue)
+            else if (findIDCate.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Category has been deleted.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục đã bị xóa");
             }
             var query = _unitOfWork.GetRepository<Product>().Entities
                                   .Where(p => !p.DeletedTime.HasValue && p.CategoryId == categoryId);
+
             if (!await query.AnyAsync())
             {
-                throw new KeyNotFoundException("No products found for the given category.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không có sản phẩm cho danh mục này");
             }
-            return await _unitOfWork.GetRepository<Product>().GetPagging(query, pageIndex, pageSize);
+
+            var paginatedList = await _unitOfWork.GetRepository<Product>().GetPagging(query, pageIndex, pageSize);
+
+            // Ánh xạ từ Product sang SelectProductModelView
+            var mappedList = paginatedList.Items.Select(p => new SelectProductFromCategory
+            {
+                Name = p.Name,
+                Price = p.Price,
+                Description = p.Description,
+                CategoryName = findIDCate.Name // Lấy tên danh mục từ findIDCate
+            }).ToList();
+            return new BasePaginatedList<SelectProductFromCategory>(mappedList, paginatedList.TotalItems, paginatedList.CurrentPage, paginatedList.PageSize);
         }
+
     }
 }
