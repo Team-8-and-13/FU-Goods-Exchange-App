@@ -26,18 +26,12 @@ namespace FUExchange.Services.Service
             IQueryable<Category> CateQuery = _unitOfWork.GetRepository<Category>()
                 .Entities
                 .Where(i => i.DeletedTime == null);
-
-            // Gọi GetPagging để lấy danh sách Category
             var paginatedList = await _unitOfWork.GetRepository<Category>().GetPagging(CateQuery, pageIndex, pageSize);
-
-            // Chuyển đổi từ Category sang CategoriesModelView
             var mappedList = paginatedList.Items.Select(c => new CategoriesModelView
             {
                 CategoryId = c.Id.ToString(), // Assuming Id is of type Guid or int, adjust if needed
                 Name = c.Name
             }).ToList();
-
-            // Trả về danh sách đã chuyển đổi
             return new BasePaginatedList<CategoriesModelView>(mappedList, paginatedList.TotalItems, paginatedList.CurrentPage, paginatedList.PageSize);
         }
 

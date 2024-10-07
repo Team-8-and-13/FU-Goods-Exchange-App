@@ -38,20 +38,19 @@ namespace FUExchangeBE.API.Controllers
         {
             try
             {
-                // Phải đồng bộ kiểu dữ liệu trả về với kiểu từ phương thức CategoryService
                 var products = await _categoryService.GetAllProductsbyIdCategory(categoryId, pageIndex, pageSize);
-                return Ok(new BaseResponse<BasePaginatedList<SelectProductFromCategory>>(  // Sửa đổi kiểu dữ liệu ở đây
+                return Ok(new BaseResponse<BasePaginatedList<SelectProductFromCategory>>(
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
                     data: products
                 ));
             }
-            catch (BaseException.ErrorException ex)  // Bắt lỗi ErrorException
+            catch (BaseException.ErrorException ex)
             {
                 return StatusCode(ex.StatusCode, new BaseResponse<string>(
-                    statusCode: (StatusCodeHelper)ex.StatusCode,  // Ép kiểu từ int sang StatusCodeHelper
+                    statusCode: (StatusCodeHelper)ex.StatusCode,
                     code: ex.ErrorDetail.ErrorCode,
-                    data: ex.ErrorDetail.ErrorMessage?.ToString() ?? "An error occurred"
+                    data: ex.ErrorDetail.ErrorMessage?.ToString() ?? "Lỗi!"
                 ));
             }
             catch (KeyNotFoundException ex)
@@ -64,7 +63,6 @@ namespace FUExchangeBE.API.Controllers
             }
             catch (Exception ex)
             {
-                // Xử lý ngoại lệ chung
                 return StatusCode(500, new BaseResponse<string>(
                     statusCode: StatusCodeHelper.ServerError,
                     code: "server_error",
@@ -72,10 +70,6 @@ namespace FUExchangeBE.API.Controllers
                 ));
             }
         }
-
-
-
-
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(string id)
@@ -108,7 +102,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Create sucessfully."));
+                 data: "Tạo thành công"));
             }
             catch (KeyNotFoundException ex)
             {
@@ -129,7 +123,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Update sucessfully."));
+                 data: "Sửa thành công"));
             }
             catch (KeyNotFoundException ex)
             {
@@ -150,7 +144,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Delete sucessfully."));
+                 data: "Xóa thành công"));
             }
             catch (KeyNotFoundException ex)
             {
