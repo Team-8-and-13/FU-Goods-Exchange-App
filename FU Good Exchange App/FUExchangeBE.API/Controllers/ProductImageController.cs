@@ -76,7 +76,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Create sucessfully."));
+                 data: "Tạo thành công."));
             }
             catch (KeyNotFoundException ex)
             {
@@ -97,7 +97,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Update sucessfully."));
+                 data: "Sửa thành công."));
             }
             catch (KeyNotFoundException ex)
             {
@@ -118,7 +118,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
-                 data: "Delete sucessfully."));
+                 data: "Xóa thành công."));
             }
             catch (KeyNotFoundException ex)
             {

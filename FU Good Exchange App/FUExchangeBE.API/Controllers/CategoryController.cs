@@ -38,11 +38,20 @@ namespace FUExchangeBE.API.Controllers
         {
             try
             {
+                // Phải đồng bộ kiểu dữ liệu trả về với kiểu từ phương thức CategoryService
                 var products = await _categoryService.GetAllProductsbyIdCategory(categoryId, pageIndex, pageSize);
-                return Ok(new BaseResponse<BasePaginatedList<Product>>(
+                return Ok(new BaseResponse<BasePaginatedList<SelectProductFromCategory>>(  // Sửa đổi kiểu dữ liệu ở đây
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
                     data: products
+                ));
+            }
+            catch (BaseException.ErrorException ex)  // Bắt lỗi ErrorException
+            {
+                return StatusCode(ex.StatusCode, new BaseResponse<string>(
+                    statusCode: (StatusCodeHelper)ex.StatusCode,  // Ép kiểu từ int sang StatusCodeHelper
+                    code: ex.ErrorDetail.ErrorCode,
+                    data: ex.ErrorDetail.ErrorMessage?.ToString() ?? "An error occurred"
                 ));
             }
             catch (KeyNotFoundException ex)
@@ -53,7 +62,18 @@ namespace FUExchangeBE.API.Controllers
                     data: ex.Message
                 ));
             }
+            catch (Exception ex)
+            {
+                // Xử lý ngoại lệ chung
+                return StatusCode(500, new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.ServerError,
+                    code: "server_error",
+                    data: ex.Message
+                ));
+            }
         }
+
+
 
 
 
