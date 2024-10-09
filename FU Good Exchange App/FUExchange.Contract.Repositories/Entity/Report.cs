@@ -7,11 +7,11 @@ namespace FUExchange.Contract.Repositories.Entity
 {
     public class Report : BaseEntity
     {
-        public Guid? UserId { get; set; }
+        public Guid UserId { get; set; }
         [Required]
         public string Reason { get; set; } = string.Empty;
         public bool Status { get; set; }
         [ForeignKey("UserId")]
-        public ApplicationUser? User { get; set; }
+        public virtual ApplicationUser? User { get; set; }
     }
 }

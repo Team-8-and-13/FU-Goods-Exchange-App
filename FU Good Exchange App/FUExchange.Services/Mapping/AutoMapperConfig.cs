@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FUExchange.Contract.Repositories.Entity;
+using FUExchange.ModelViews.NotificationModelViews;
 using FUExchange.ModelViews.ProductModelViews;
 
 namespace FUExchange.Services.Mapping
@@ -10,6 +11,9 @@ namespace FUExchange.Services.Mapping
         {
             //Product
             CreateMap<SelectProductModelView, Product>().ReverseMap();
+
+            //Notification
+            CreateMap<NotificationDisplay, Notification>().ReverseMap();
         }
     }
 }

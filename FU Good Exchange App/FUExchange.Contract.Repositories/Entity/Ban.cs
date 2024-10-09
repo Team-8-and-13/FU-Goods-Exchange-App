@@ -5,9 +5,9 @@ namespace FUExchange.Contract.Repositories.Entity
 {
     public class Ban : BaseEntity
     {
-        public string? ReportId { get; set; }
+        public string ReportId { get; set; } = string.Empty;
         public DateTime? Expires { get; set; }
         [ForeignKey("ReportId")]
-        public Report? Report { get; set; }
+        public virtual Report? Report { get; set; }
     }
 }
