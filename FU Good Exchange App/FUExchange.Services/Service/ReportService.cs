@@ -90,38 +90,23 @@ namespace FUExchange.Services.Service
 
         public async Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest)
         {
+            if (updateReportRequest == null) throw new ArgumentNullException(nameof(updateReportRequest));
+
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
 
-            // Lấy UserId từ claims
-            var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (!Guid.TryParse(userIdClaim, out Guid userId)) throw new KeyNotFoundException("UserId is invalid.");
 
-            // Chuyển đổi UserId từ string sang Guid
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
-            {
-                throw new KeyNotFoundException("UserId is invalid.");
-            }
-
-            var existingReport = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
-
-            if (updateReportRequest == null)
-            {
-                throw new KeyNotFoundException("Invalid report data.");
-            }
-            if (existingReport == null)
-            {
-                throw new KeyNotFoundException("Report not found.");
-            }
-            else if (existingReport.DeletedTime.HasValue)
-            {
-                throw new KeyNotFoundException("Report has been deleted.");
-            }
+            var existingReport = await _unitOfWork.GetRepository<Report>().Entities
+                .Where(r => r.Id == id && !r.DeletedTime.HasValue)
+                .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Report not found or has been deleted.");
 
             // Cập nhật thông tin của báo cáo
             existingReport.Reason = updateReportRequest.Reason;
             existingReport.Status = updateReportRequest.Status;
-            existingReport.LastUpdatedBy = userId.ToString(); // Gán LastUpdatedBy
-            existingReport.LastUpdatedTime = DateTime.Now;   // Gán LastUpdatedTime
+            existingReport.LastUpdatedBy = userId.ToString();
+            existingReport.LastUpdatedTime = DateTime.Now;
 
             await _unitOfWork.SaveAsync();
         }
@@ -131,21 +116,14 @@ namespace FUExchange.Services.Service
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
 
-            // Lấy UserId từ claims
-            var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            // Lấy UserId từ claims và chuyển đổi thành Guid
+            var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (!Guid.TryParse(userIdClaim, out Guid userId)) throw new KeyNotFoundException("UserId is invalid.");
 
-            // Chuyển đổi UserId từ string sang Guid
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
-            {
-                throw new KeyNotFoundException("UserId is invalid.");
-            }
-
-            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
-
-            if (report == null || report.DeletedTime.HasValue)
-            {
-                throw new KeyNotFoundException("Report not found or has been deleted.");
-            }
+            // Tìm báo cáo dựa trên Id và kiểm tra xem nó chưa bị xóa
+            var report = await _unitOfWork.GetRepository<Report>().Entities
+                .Where(r => r.Id == id && !r.DeletedTime.HasValue)
+                .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Report not found or has been deleted.");
 
             // Gán DeletedBy và DeletedTime trước khi xóa
             report.DeletedBy = userId.ToString();
