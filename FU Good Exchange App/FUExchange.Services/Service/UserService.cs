@@ -61,7 +61,7 @@ namespace FUExchange.Services.Service
 
             if (user == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "User does not exist!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
             }
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -112,7 +112,7 @@ namespace FUExchange.Services.Service
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "User does not exist!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
             }
 
             user.UserName = model.UserName;
@@ -139,12 +139,12 @@ namespace FUExchange.Services.Service
             return result.Succeeded; // Return true or false based on update success
         }
 
-        public async Task<bool> DeleteUser(string userId, string adminId)
+        public async Task<bool> DeleteUser(string userId, string? adminId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "User does not exist!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
             }
 
             user.DeletedBy = adminId;
