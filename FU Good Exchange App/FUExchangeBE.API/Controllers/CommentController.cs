@@ -25,7 +25,7 @@ namespace FUExchangeBE.API.Controllers
         public async Task<IActionResult> CreateComment(CreateCommentModelViews viewModel)
         {
 
-            await _commentService.CreateCommentAsync(viewModel);
+            await _commentService.CreateComment(viewModel);
             return Ok(new BaseResponseModel(
                      StatusCodes.Status200OK,
                      ResponseCodeConstants.SUCCESS,
@@ -36,7 +36,7 @@ namespace FUExchangeBE.API.Controllers
         [Route("Reply_Comment")]
         public async Task<IActionResult> CreateReplyComment(string repCommentId, CreateReplyCommentModelView viewModel)
         {
-            await _commentService.CreateReplyCommentAsync(repCommentId, viewModel);
+            await _commentService.CreateReplyComment(repCommentId, viewModel);
 
             return Ok(new BaseResponseModel(
                      StatusCodes.Status200OK,
@@ -50,7 +50,7 @@ namespace FUExchangeBE.API.Controllers
         [Route("Comment_By_Id")]
         public async Task<IActionResult> GetCommentById(string id)
         {
-            var comment = await _commentService.GetCommentByIdAsync(id);
+            var comment = await _commentService.GetCommentById(id);
             return Ok(new BaseResponseModel(
                                  StatusCodes.Status200OK,
                                  ResponseCodeConstants.SUCCESS,
@@ -60,9 +60,9 @@ namespace FUExchangeBE.API.Controllers
         // GET: api/Comments
         [HttpGet]
         [Route("Get_All_Of_Comment_From_Product")]
-        public async Task<IActionResult> GetAllCommentsFromProduct(string productid)
+        public async Task<IActionResult> GetAllCommentsFromProduct(string productid, int pageIndex = 1, int pageSize = 2)
         {
-            var comments = await _commentService.GetAllCommentsFromProductAsync(productid);
+            var comments = await _commentService.GetAllCommentsFromProduct(productid, pageIndex, pageSize);
             return Ok(new BaseResponseModel(
                     StatusCodes.Status200OK,
                     ResponseCodeConstants.SUCCESS,
@@ -74,7 +74,7 @@ namespace FUExchangeBE.API.Controllers
         public async Task<IActionResult> UpdateComment(string id, CreateCommentModelViews viewModel)
         {
 
-            await _commentService.UpdateCommentAsync(id, viewModel);
+            await _commentService.UpdateComment(id, viewModel);
             return Ok(new BaseResponseModel(
                      StatusCodes.Status200OK,
                      ResponseCodeConstants.SUCCESS,
@@ -86,7 +86,7 @@ namespace FUExchangeBE.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteComment(string id)
         {
-            await _commentService.DeleteCommentAsync(id);
+            await _commentService.DeleteComment(id);
             return Ok(new BaseResponseModel(
                      StatusCodes.Status200OK,
                      ResponseCodeConstants.SUCCESS,
