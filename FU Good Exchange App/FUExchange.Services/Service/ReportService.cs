@@ -33,11 +33,32 @@ namespace FUExchange.Services.Service
             };
         }
 
-        public async Task<BasePaginatedList<Report>> GetAllReports(int pageIndex, int pageSize)
+        //public async Task<BasePaginatedList<Report>> GetAllReports(int pageIndex, int pageSize)
+        //{
+        //    var query = _unitOfWork.GetRepository<Report>().Entities
+        //        .Where(r => !r.DeletedTime.HasValue);
+        //    return await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
+        //}
+        public async Task<BasePaginatedList<ReportListResponseModel>> GetAllReports(int pageIndex, int pageSize)
         {
             var query = _unitOfWork.GetRepository<Report>().Entities
                 .Where(r => !r.DeletedTime.HasValue);
-            return await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
+
+            var reports = await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
+
+            return new BasePaginatedList<ReportListResponseModel>(
+                reports.Items.Select(r => new ReportListResponseModel
+                {
+                    Id = r.Id.ToString(),
+                    Reason = r.Reason,
+                    Status = r.Status,
+                    CreatedTime = r.CreatedTime,
+                    LastUpdatedTime = r.LastUpdatedTime
+                }).ToList(),
+                reports.TotalCount,
+                pageIndex,
+                pageSize
+            );
         }
         public async Task<ReportResponseModel?> GetReportById(string id)
         {
@@ -85,8 +106,6 @@ namespace FUExchange.Services.Service
             await _unitOfWork.GetRepository<Report>().InsertAsync(report);
             await _unitOfWork.SaveAsync();
         }
-
-
 
         public async Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest)
         {
