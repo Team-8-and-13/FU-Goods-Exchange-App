@@ -8,10 +8,10 @@ namespace FUExchange.ModelViews.UserModelViews
 {
     public class CreateUserModel
     {
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public string Role { get; set; } // Admin assigns roles
-        public string FullName { get; set; } = string.Empty;
+        public required string UserName { get; set; }
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+        public required string Role { get; set; } // Admin assigns roles
+        public required string FullName { get; set; } = string.Empty;
     }
 }

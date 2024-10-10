@@ -1,6 +1,7 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Services.Interface;
+using FUExchange.Core;
 using FUExchange.Core.Constants;
 using FUExchange.Core.Utils;
 using FUExchange.ModelViews.UserModelViews;
@@ -8,6 +9,9 @@ using FUExchange.Repositories.Entity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using static FUExchange.Core.Base.BaseException;
 
 namespace FUExchange.Services.Service
@@ -25,11 +29,12 @@ namespace FUExchange.Services.Service
             _roleManager = roleManager;
         }
 
-        public async Task<IList<UserResponseModel>> GetAll()
+        public async Task<BasePaginatedList<UserResponseModel>> GetAll(int pageIndex, int pageSize)
         {
-            var users = await _userManager.Users
-                .Include(u => u.UserInfo)
-                .ToListAsync();
+            var usersQuery = _userManager.Users.Include(u => u.UserInfo).AsQueryable();
+
+            var totalCount = await usersQuery.CountAsync();
+            var users = await usersQuery.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
 
             var userResponseList = new List<UserResponseModel>();
 
@@ -39,34 +44,34 @@ namespace FUExchange.Services.Service
                 userResponseList.Add(new UserResponseModel
                 {
                     Id = user.Id.ToString(),
-                    Email = user.Email,
-                    Username = user.UserName,
-                    FullName = user.UserInfo?.FullName,
+                    Email = user.Email ?? "",
+                    Username = user.UserName ?? "",
+                    FullName = user.UserInfo?.FullName ?? "",
                     Roles = roles
                 });
             }
 
-            return userResponseList;
+            return new BasePaginatedList<UserResponseModel>(userResponseList, totalCount, pageIndex, pageSize);
         }
 
         public async Task<UserResponseModel?> GetById(string userId)
         {
-            var user = await _userManager.Users
-                .Include(u => u.UserInfo)
+            var user = await _userManager.Users.Include(u => u.UserInfo)
                 .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
 
             if (user == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Nguoi dung khong ton tai!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
             }
+
             var roles = await _userManager.GetRolesAsync(user);
 
             return new UserResponseModel
             {
                 Id = user.Id.ToString(),
-                Email = user.Email,
-                Username = user.UserName,
-                FullName = user.UserInfo?.FullName,
+                Email = user.Email ?? "",
+                Username = user.UserName ?? "",
+                FullName = user.UserInfo?.FullName ?? "",
                 Roles = roles
             };
         }
@@ -104,37 +109,51 @@ namespace FUExchange.Services.Service
 
         public async Task<bool> UpdateUser(string userId, UpdateUserModel model, string? adminId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return false;
+            var user = await _userManager.Users.Include(u => u.UserInfo).FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+            if (user == null)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
+            }
 
+            // Update user details
             user.UserName = model.UserName;
             user.Email = model.Email;
             user.LastUpdatedBy = adminId;
             user.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
-            // If password needs to be updated, hash the new password
-            if (!string.IsNullOrWhiteSpace(model.Password))              
+            // Update FullName in UserInfo if provided
+            if (!string.IsNullOrEmpty(model.FullName))
+            {
+                if (user.UserInfo != null)
+                {
+                    user.UserInfo.FullName = model.FullName;
+                }
+                else
+                {
+                    user.UserInfo = new UserInfo
+                    {
+                        FullName = model.FullName
+                    };
+                }
+            }
+
+            // Hash password if provided
+            if (!string.IsNullOrEmpty(model.Password))
             {
                 user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, model.Password);
             }
 
-            // Role management: check if role update is needed
+            // Handle role updates
             var currentRoles = await _userManager.GetRolesAsync(user);
             if (!currentRoles.Contains(model.Role))
             {
                 var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                if (!removeRolesResult.Succeeded)
-                {
-                    return false;
-                }
+                if (!removeRolesResult.Succeeded) return false;
 
-                // Add new role
                 var addRoleResult = await _userManager.AddToRoleAsync(user, model.Role);
-                if (!addRoleResult.Succeeded)
-                {
-                    return false;
-                }
+                if (!addRoleResult.Succeeded) return false;
             }
+
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
@@ -143,7 +162,10 @@ namespace FUExchange.Services.Service
         public async Task<bool> DeleteUser(string userId, string? adminId)
         {
             var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return false;
+            if (user == null)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
+            }
 
             user.DeletedBy = adminId;
             user.DeletedTime = CoreHelper.SystemTimeNow;

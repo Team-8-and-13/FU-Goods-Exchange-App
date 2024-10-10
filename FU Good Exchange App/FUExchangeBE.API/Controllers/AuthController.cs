@@ -1,6 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FUExchange.ModelViews.AuthModelViews;
 using FUExchange.Contract.Services.Interface;
+using FUExchange.Core.Base;
+using FUExchange.Core.Constants;
+using System;
+using System.Threading.Tasks;
+
 namespace FUExchangeBE.API.Controllers
 {
     [Route("api/[controller]")]
@@ -17,23 +22,57 @@ namespace FUExchangeBE.API.Controllers
         [HttpPost("auth_account")]
         public async Task<IActionResult> Login(LoginModelView model)
         {
-            var token = await _authService.LoginAsync(model);
-            if (string.IsNullOrEmpty(token))
+            try
             {
-                return Unauthorized();
+                var token = await _authService.LoginAsync(model);
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized(new BaseResponse<string>(
+                        statusCode: StatusCodeHelper.Unauthorized,
+                        code: StatusCodeHelper.Unauthorized.ToString(),
+                        data: "Đăng nhập thất bại!"));
+                }
+
+                return Ok(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: token));
             }
-            return Ok(new { Token = token });
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.ERROR,
+                    data: ex.Message));
+            }
         }
 
         [HttpPost("new_account")]
         public async Task<IActionResult> Register(RegisterModelView model)
         {
-            var result = await _authService.RegisterAsync(model);
-            if (result.Succeeded)
+            try
             {
-                return Ok();
+                var result = await _authService.RegisterAsync(model);
+                if (result.Succeeded)
+                {
+                    return Ok(new BaseResponse<string>(
+                        statusCode: StatusCodeHelper.OK,
+                        code: StatusCodeHelper.OK.ToString(),
+                        data: "Đăng ký thành công."));
+                }
+
+                return BadRequest(new BaseResponse<object>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: StatusCodeHelper.BadRequest.ToString(),
+                    data: result.Errors));
             }
-            return BadRequest(result.Errors);
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.ERROR,
+                    data: ex.Message));
+            }
         }
     }
 }
