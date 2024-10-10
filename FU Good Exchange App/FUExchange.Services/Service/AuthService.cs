@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FUExchange.Repositories.Entity;
+using FUExchange.Contract.Repositories.Interface;
 
 namespace FUExchange.Services.Service
 {
@@ -19,12 +20,14 @@ namespace FUExchange.Services.Service
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration)
+        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string> LoginAsync(LoginModelView model)
@@ -58,6 +61,19 @@ namespace FUExchange.Services.Service
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );
+            bool reported = _unitOfWork.GetRepository<Report>().Entities.Any(u => u.UserId == user.Id && u.Status);
+            if (reported)
+            {
+                return user.UserName + " have been blocked !!!";
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var authClaims = new List<Claim>
+            {
+                new Claim("UserId", user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }

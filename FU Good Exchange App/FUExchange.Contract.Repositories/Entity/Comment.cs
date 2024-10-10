@@ -8,14 +8,14 @@ namespace FUExchange.Contract.Repositories.Entity
 {
     public class Comment : BaseEntity
     {
-        public Guid? UserId { get; set; }
+        public Guid UserId { get; set; }
         public string? RepCmtId { get; set; }
-        public string? ProductId { get; set; }
+        public string ProductId { get; set; } = string.Empty;
         [Required]
         public string CommentText { get; set; } = string.Empty;
         [ForeignKey("UserId")]
-        public ApplicationUser User { get; set; }
+        public virtual ApplicationUser? User { get; set; }
         [ForeignKey("ProductId")]
-        public Product Product { get; set; }
+        public virtual Product? Product { get; set; }
     }
 }

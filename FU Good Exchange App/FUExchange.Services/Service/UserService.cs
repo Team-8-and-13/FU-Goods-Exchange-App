@@ -173,5 +173,19 @@ namespace FUExchange.Services.Service
             var result = await _userManager.DeleteAsync(user);
             return result.Succeeded;
         }
+
+        public async Task<UserResponseModel?> GetById(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null) return null;
+
+            return new UserResponseModel
+            {
+                Id = user.Id.ToString(),
+                Email = user.Email,
+                Username = user.UserName != null ? user.UserName : "",
+                FullName = user.UserInfo != null ? user.UserInfo.FullName : ""
+            };
+        }
     }
 }

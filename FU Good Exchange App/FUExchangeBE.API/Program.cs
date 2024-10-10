@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddScoped<IReportService, ReportService>();
 // Cấu hình appsettings
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -24,7 +24,7 @@ builder.Configuration
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("myConnect"),
-        b => b.MigrationsAssembly("FUExchangeBE.API")));
+        b => b.MigrationsAssembly("FUExchange.Repositories")));
 
 // Configure Identity services
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>

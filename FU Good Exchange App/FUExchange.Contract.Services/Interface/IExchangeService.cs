@@ -1,7 +1,5 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Core;
-using FUExchange.ModelViews.UserModelViews;
-
 
 namespace FUExchange.Contract.Services.Interface
 {

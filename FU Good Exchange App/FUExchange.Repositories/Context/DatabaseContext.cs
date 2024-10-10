@@ -16,7 +16,7 @@ namespace FUExchange.Repositories.Context
         public DbSet<Exchange> Exchanges { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<Ban> Bans { get; set; }
-        public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         // user
         public virtual DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();
@@ -28,11 +28,17 @@ namespace FUExchange.Repositories.Context
         public virtual DbSet<ApplicationUserTokens> ApplicationUserTokens => Set<ApplicationUserTokens>();
         public virtual DbSet<UserInfo> UserInfos => Set<UserInfo>();
 
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    modelBuilder.Entity<Comment>()
+        //}
+
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("myConnect", b => b.MigrationsAssembly("FUExchangeBE.API"));
+                optionsBuilder.UseSqlServer("myConnect", b => b.MigrationsAssembly("FUExchange.Repositories"));
             }
         }
     }

@@ -6,12 +6,12 @@ namespace FUExchange.Contract.Repositories.Entity
 {
     public class ProductImage : BaseEntity
     {
-        public string? ProductId { get; set; }
+        public string ProductId { get; set; } = string.Empty;
         [Required]
         public string Image {  get; set; } = string.Empty;
         public string? Description { get; set; }
         [ForeignKey("ProductId")]
-        public Product Product { get; set; }
+        public virtual Product? Product { get; set; }
 
     }
 }

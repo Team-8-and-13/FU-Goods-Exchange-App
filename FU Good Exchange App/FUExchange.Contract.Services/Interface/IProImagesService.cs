@@ -7,8 +7,8 @@ namespace FUExchange.Contract.Services.Interface
     {
         Task CreateProductImage(CreateProductImageModelViews createproimg, string idPro);
         Task UpdateProductImage(string id, UpdateProductImageModelViews createproimg);
-        Task<ProductImage> DeleteProductImage(string id);
-        Task<IEnumerable<ProductImage>> GetImagesbyIdPro(string productId);
-        Task<ProductImage> GetProductImageById(string id);
+        Task DeleteProductImage(string id);
+        Task<IEnumerable<ProductImageModelViews>> GetImagesbyIdPro(string productId);
+        Task<ProductImageModelViews> GetProductImageById(string id);
     }
 }

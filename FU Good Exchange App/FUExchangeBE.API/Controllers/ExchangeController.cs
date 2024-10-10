@@ -31,11 +31,11 @@ namespace FUExchangeBE.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetExchangeById(string id)
         {
-            var EXC = await _exchangeService.GetExchangeByIdAsync(id);
-            if (EXC == null)
+            var exc = await _exchangeService.GetExchangeByIdAsync(id);
+            if (exc == null)
                 return NotFound();
 
-            return Ok(EXC);
+            return Ok(exc);
         }
         [HttpPost]
         public async Task<IActionResult> CreateExchange(ExchangeModelViews exchangemodelview)

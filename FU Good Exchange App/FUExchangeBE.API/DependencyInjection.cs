@@ -3,6 +3,7 @@ using FUExchange.Contract.Services.Interface;
 using FUExchange.Repositories.Context;
 using FUExchange.Services;
 using FUExchange.Services.Service;
+using FUExchange.Contract.Repositories.Entity;
 
 namespace FUExchangeBE.API
 {
@@ -27,7 +28,8 @@ namespace FUExchangeBE.API
         {
             services.AddDbContext<DatabaseContext>(options =>
             {
-                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("MyCnn"));
+                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("myConnect"),
+                     options => options.MigrationsAssembly("FUExchange.Repositories"));
             });
         }
 
@@ -47,6 +49,7 @@ namespace FUExchangeBE.API
             services.AddScoped<IProImagesService, ProductImageService>();
             services.AddScoped<IExchangeService, ExchangeService>();
             services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<INotificationService, NotificationService>();
         }
     }
 }
