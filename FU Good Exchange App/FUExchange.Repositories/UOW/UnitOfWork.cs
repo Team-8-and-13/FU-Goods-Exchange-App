@@ -65,11 +65,6 @@ namespace FUExchange.Repositories.UOW
         {
             return new GenericRepository<T>(_dbContext);
         }
-
-        public IProductRepository GetProductRepository()
-        {
-            return new ProductRepository(_dbContext);
-        }
         public IProImagesRepository GetProductImagRepository()
         {
             return new ProImagesRepository(_dbContext);

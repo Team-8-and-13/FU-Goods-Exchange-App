@@ -9,6 +9,7 @@ namespace FUExchange.Contract.Services.Interface
     {
         Task<BasePaginatedList<ReportListResponseModel>> GetAllReports(int pageIndex, int pageSize);
         Task<ReportResponseModel?> GetReportById(string id);
+        Task<ReportResponseModel?> GetReportByIdAsync(string id);
         Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest);
         Task<Report> DeleteReport(string id);
         Task<IEnumerable<ReportResponseModel>> GetReportsByReason(string reason);

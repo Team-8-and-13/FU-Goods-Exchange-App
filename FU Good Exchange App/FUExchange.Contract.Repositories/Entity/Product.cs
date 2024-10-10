@@ -7,8 +7,8 @@ namespace FUExchange.Contract.Repositories.Entity
 {
     public class Product : BaseEntity
     {
-        public Guid? SellerId { get; set; }
-        public string? CategoryId { get; set; }
+        public Guid SellerId { get; set; }
+        public string CategoryId { get; set; } = string.Empty;
         [Required]
         public string Name { get; set; } = string.Empty;
         [Required]
@@ -20,8 +20,8 @@ namespace FUExchange.Contract.Repositories.Entity
         public bool Sold {  get; set; }
         public int Rating { get; set; }
         [ForeignKey("CategoryId")]
-        public Category Category { get; set; }
+        public virtual Category? Category { get; set; }
         [ForeignKey("SellerId")]
-        public ApplicationUser User { get; set; }
+        public virtual ApplicationUser? User { get; set; }
     }
 }

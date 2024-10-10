@@ -1,9 +1,12 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Repositories.Interface;
+using FUExchange.Contract.Repositories.PaggingItems;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core.Constants;
+using FUExchange.ModelViews.CategoryModelViews;
 using FUExchange.ModelViews.ProductImagesModelViews;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using static FUExchange.Core.Base.BaseException;
 namespace FUExchange.Services.Service
 {
@@ -21,11 +24,10 @@ namespace FUExchange.Services.Service
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
-            var idProduct = await _unitOfWork.GetProductRepository().GetByIdAsync(idPro);
+            var idProduct = await _unitOfWork.GetRepository<Product>().GetByIdAsync(idPro);
             if (idProduct == null)
             {
-                throw new KeyNotFoundException("Find not id product.");
-                //throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Invalid product image data.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không hợp dữ liệu.");
             }
             var proImg = new ProductImage
             {
@@ -44,26 +46,15 @@ namespace FUExchange.Services.Service
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
-
-            if (updateproimg == null)
-            {
-                throw new KeyNotFoundException("Invalid product image data.");
-                //throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Invalid product image data.");
-            }
-
             var existingProimg = await _unitOfWork.GetRepository<ProductImage>().GetByIdAsync(id);
-
-            if (existingProimg == null)
+            if (updateproimg == null || existingProimg.Id != id)
             {
-                throw new KeyNotFoundException("Find not id ProductImage.");
-                //throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy id ProductImage.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Dữ liệu không hợp lệ.");
             }
-            else if (existingProimg.DeletedTime.HasValue)
+            if (existingProimg == null || existingProimg.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("ProductImage was deleted.");
-                //throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "ProductImage này đã bị xóa");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy id ProductImage hoặc đã bị xóa.");
             }
-
             existingProimg.Image = updateproimg.Image;
             existingProimg.Description = updateproimg.Description;
             existingProimg.LastUpdatedBy = userID.ToString();
@@ -72,17 +63,16 @@ namespace FUExchange.Services.Service
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task<ProductImage> DeleteProductImage(string id)
+        public async Task DeleteProductImage(string id)
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
 
             var proimg = await _unitOfWork.GetRepository<ProductImage>().GetByIdAsync(id);
-            if (proimg == null)
+            if (proimg.Id != id) 
             {
-                throw new KeyNotFoundException("Find not id ProductImage.");
-                //throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy id ProductImage");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Id không tồn tại để xóa");
             }
 
             proimg.DeletedTime = DateTime.Now;
@@ -90,30 +80,48 @@ namespace FUExchange.Services.Service
 
             await _unitOfWork.GetRepository<ProductImage>().UpdateAsync(proimg);
             await _unitOfWork.SaveAsync();
-            return proimg;
         }
 
-        public async Task<IEnumerable<ProductImage>> GetImagesbyIdPro(string productId)
+        public async Task<IEnumerable<ProductImageModelViews>> GetImagesbyIdPro(string productId)
         {
-            var existingProimg = await _unitOfWork.GetRepository<Product>().GetByIdAsync(productId);
-            if (existingProimg == null)
+            var existingProduct = await _unitOfWork.GetRepository<Product>().GetByIdAsync(productId);
+            if (existingProduct == null || existingProduct.Id != productId)
             {
-                throw new KeyNotFoundException("Find not id Product.");
-                //throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy id Product");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "");
             }
-            return await _unitOfWork.GetProductImagRepository().GetImagesbyIdPro(productId);
+            var productImages = await _unitOfWork.GetProductImagRepository().GetImagesbyIdPro(productId);
+            if (productImages == null || !productImages.Any())
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy hình ảnh cho sản phẩm này");
+            }
+            var mappedList = productImages.Select(c => new ProductImageModelViews
+            {
+                Image = c.Image, 
+                Description = c.Description 
+            }).ToList();
+
+            return mappedList;
         }
 
-        public async Task<ProductImage> GetProductImageById(string id)
+        public async Task<ProductImageModelViews> GetProductImageById(string id)
         {
-            var existingProimg = await _unitOfWork.GetRepository<ProductImage>().GetByIdAsync(id);
-            if (existingProimg == null)
+            var existingProductImage = await _unitOfWork.GetRepository<ProductImage>()
+                .Entities
+                .Where(p => !p.DeletedTime.HasValue && p.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (existingProductImage == null)
             {
-                throw new KeyNotFoundException("Find not id ProductImage.");
-                //throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy id ProductImage"); ;
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy id ProductImage");
             }
-            return await _unitOfWork.GetProductImagRepository().GetByIdAsync(id);
-            //return await _unitOfWork.GetRepository<ProductImage>().GetByIdAsync(id);
+
+            return new ProductImageModelViews
+            {
+                Image = existingProductImage.Image,
+                Description = existingProductImage.Description
+            };
         }
+
+
     }
 }

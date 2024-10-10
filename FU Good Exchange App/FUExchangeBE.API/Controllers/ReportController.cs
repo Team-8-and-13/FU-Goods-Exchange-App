@@ -67,7 +67,7 @@ namespace FUExchangeBE.API.Controllers
         public static class ResponseCodeConstants
         {
             public const string NOT_FOUND = "NOT_FOUND";
-            public const string BAD_REQUEST = "BAD_REQUEST"; 
+            public const string BAD_REQUEST = "BAD_REQUEST";
         }
         [HttpPost]
         public async Task<IActionResult> CreateReport([FromBody] ReportRequestModel reportRequest)

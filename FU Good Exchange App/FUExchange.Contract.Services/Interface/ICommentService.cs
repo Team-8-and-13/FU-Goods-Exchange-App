@@ -6,12 +6,12 @@ namespace FUExchange.Contract.Services.Interface
 {
     public interface ICommentService
     {
-        Task CreateCommentAsync(CreateCommentModelViews viewModel);
-        Task CreateReplyCommentAsync(string repCommentId, CreateReplyCommentModelView viewModel);
-        Task<Comment?> GetCommentByIdAsync(string id);
-        Task<IEnumerable<Comment>> GetAllCommentsFromProductAsync(string productid);
-        Task UpdateCommentAsync(string id, CreateCommentModelViews viewModel);
-        Task DeleteCommentAsync(string id);
-        Task<BasePaginatedList<Comment>> GetCommentPaginatedAsync(int pageIndex, int pageSize);
+        Task CreateComment(CreateCommentModelViews viewModel);
+        Task CreateReplyComment(string repCommentId, CreateReplyCommentModelView viewModel);
+        Task<CommentModelView?> GetCommentById(string id);
+        Task<BasePaginatedList<CommentModelView>> GetAllCommentsFromProduct(string productid, int pageIndex, int pageSize);
+        Task UpdateComment(string id, CreateCommentModelViews viewModel);
+        Task DeleteComment(string id);
+        Task<BasePaginatedList<CommentModelView>> GetCommentPaginated(int pageIndex, int pageSize);
     }
 }

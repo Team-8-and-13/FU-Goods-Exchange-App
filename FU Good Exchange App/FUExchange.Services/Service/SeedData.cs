@@ -40,22 +40,22 @@ namespace FUExchange.Services.Service
                 }
             }
             // Ensure another admin user exists
-            var AdminUser2 = await userManager.FindByNameAsync("adminUser2");
+            //var AdminUser2 = await userManager.FindByNameAsync("adminUser2");
 
-            if (AdminUser2 == null)
-            {
-                AdminUser2 = new ApplicationUser
-                {
-                    UserName = "anotherAdmin",
-                    Email = "anotherAdmin@example.com",
-                    UserInfo = new UserInfo { FullName = "Administrator2" }
-                };
-                var result = await userManager.CreateAsync(AdminUser2, "Admin2Password123!");
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(AdminUser2, ApplicationRole.Admin);
-                }
-            }
+            //if (AdminUser2 == null)
+            //{
+            //    AdminUser2 = new ApplicationUser
+            //    {
+            //        UserName = "anotherAdmin",
+            //        Email = "anotherAdmin@example.com",
+            //        UserInfo = new UserInfo { FullName = "Administrator2" }
+            //    };
+            //    var result = await userManager.CreateAsync(AdminUser2, "Admin2Password123!");
+            //    if (result.Succeeded)
+            //    {
+            //        await userManager.AddToRoleAsync(AdminUser2, ApplicationRole.Admin);
+            //    }
+            //}
 
 
             var moderatorUser = await userManager.FindByNameAsync("moderator");
