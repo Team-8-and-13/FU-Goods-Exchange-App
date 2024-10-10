@@ -2,6 +2,7 @@
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core.Base;
 using FUExchange.Core.Constants;
+using FUExchange.Core.Response;
 using FUExchange.ModelViews.ExchangeModelViews;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,46 +20,22 @@ namespace FUExchangeBE.API.Controllers
             _exchangeService = exchangeService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllExchange()
+        public async Task<IActionResult> GetAllExchange(int pageIndex = 1, int pageSize = 2)
         {
-            var exchanges = await _exchangeService.GetAllExchangeAsync();
-            return Ok(new BaseResponse<IEnumerable<Exchange>>(
-             statusCode: StatusCodeHelper.OK,
-             code: StatusCodeHelper.OK.ToString(),
-             data: exchanges));
+            var exc = await _exchangeService.GetAllExchangeAsync(pageIndex, pageSize);
+            return Ok(exc);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetExchangeById(string id)
         {
             var exc = await _exchangeService.GetExchangeByIdAsync(id);
-            if (exc == null)
-                return NotFound();
-
             return Ok(exc);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateExchange(ExchangeModelViews exchangemodelview)
+        public async Task<IActionResult> CreateExchange(CreateExchangeModelViews exchangemodelview)
         {
-            if (exchangemodelview == null)
-            {
-                return BadRequest("Invalid category data.");
-            }
-            var userId = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User ID is not available in token.");
-            }
-
-
-            var exc = new Exchange
-            {
-                BuyerId =  Guid.Parse(exchangemodelview.BuyerId),
-                ProductId = exchangemodelview.ProductId,
-                CreatedBy = userId
-            };
-
-            await _exchangeService.CreateExchangeAsync(exc, userId);
+            await _exchangeService.CreateExchangeAsync(exchangemodelview);
             return Ok(new BaseResponse<string>(
              statusCode: StatusCodeHelper.OK,
              code: StatusCodeHelper.OK.ToString(),
@@ -68,33 +45,21 @@ namespace FUExchangeBE.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Updatexchange(string id, ExchangeModelViews updateExchangeModel)
         {
-            var existExchange = await _exchangeService.GetExchangeByIdAsync(id);
-            if (existExchange == null)
-                return NotFound();
-
-            existExchange.BuyerId = Guid.Parse(updateExchangeModel.BuyerId);
-            existExchange.ProductId = updateExchangeModel.ProductId;
-            var userId = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
-
-            await _exchangeService.UpdateExchangeAsync(existExchange, userId);
-            return NoContent();
+            await _exchangeService.UpdateExchangeAsync(id, updateExchangeModel);
+            return Ok(new BaseResponseModel(
+                     StatusCodes.Status200OK,
+                     ResponseCodeConstants.SUCCESS,
+                     "Cập nhật thành công"));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteExchange(string id)
         {
-            var userId = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
-
-            _exchangeService.DeleteExchangeAsync(id, userId);
-            return NoContent();
+            await _exchangeService.DeleteExchangeAsync(id);
+            return Ok(new BaseResponseModel(
+                     StatusCodes.Status200OK,
+                     ResponseCodeConstants.SUCCESS,
+                     "Xóa trao đổi thành công!!!"));
         }
 
     }
