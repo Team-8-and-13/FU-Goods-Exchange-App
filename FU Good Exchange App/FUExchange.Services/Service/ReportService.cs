@@ -187,14 +187,13 @@ namespace FUExchange.Services.Service
             // Nếu muốn thêm kiểm tra DeletedTime trong lệnh throw:
             if (report.DeletedTime.HasValue)
                 throw new KeyNotFoundException("Report has been deleted.");
-
             return new ReportStatusResponseModel
             {
                 ReportId = report.Id.ToString(),
                 Status = report.Status,
                 CreatedBy = report.CreatedBy!,
                 CreatedTime = report.CreatedTime,
-                LastUpdatedBy = report.LastUpdatedBy,
+                LastUpdatedBy = report.LastUpdatedBy!,
                 LastUpdatedTime = report.LastUpdatedTime
             };
         }
