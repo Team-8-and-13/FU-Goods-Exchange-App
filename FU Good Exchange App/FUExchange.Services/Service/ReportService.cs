@@ -23,11 +23,9 @@ namespace FUExchange.Services.Service
 
         public async Task<ReportResponseModel?> GetReportByIdAsync(string id)
         {
-            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id) ??  throw new KeyNotFoundException("Report not found.");
-            if (report.DeletedTime.HasValue)
-            {
-                throw new KeyNotFoundException("Report has been deleted.");
-            }
+            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
+            if (report == null || report.DeletedTime.HasValue)
+                throw new KeyNotFoundException("Report not found or has been deleted.");
 
             return new ReportResponseModel
             {
@@ -36,6 +34,28 @@ namespace FUExchange.Services.Service
                 Status = report.Status
             };
         }
+
+        public async Task<BasePaginatedList<ReportListResponseModel>> GetAllReports(int pageIndex, int pageSize)
+        {
+            var query = _unitOfWork.GetRepository<Report>().Entities
+                .Where(r => !r.DeletedTime.HasValue);
+
+            var reports = await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
+
+            return new BasePaginatedList<ReportListResponseModel>(
+                reports.Items.Select(r => new ReportListResponseModel
+                {
+                    Id = r.Id.ToString(),
+                    Reason = r.Reason,
+                    Status = r.Status,
+                    CreatedTime = r.CreatedTime,
+                    LastUpdatedTime = r.LastUpdatedTime
+                }).ToList(),
+                reports.TotalCount,
+                pageIndex,
+                pageSize
+            );
+        
         public async Task<ReportResponseModel?> GetReportById(string id)
         {
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
@@ -57,19 +77,12 @@ namespace FUExchange.Services.Service
             };
         }
 
-        public async Task<BasePaginatedList<Report>> GetAllReports(int pageIndex, int pageSize)
-        {
-            var query = _unitOfWork.GetRepository<Report>().Entities.Where(r => !r.DeletedTime.HasValue);
-            return await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
-        }
-
-        
 
         public async Task CreateReport(ReportRequestModel reportRequest)
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
-            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
+            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value)
             if (reportRequest == null || string.IsNullOrEmpty(reportRequest.UserId))
             {
                 throw new ArgumentException("UserId is required.");
@@ -86,7 +99,7 @@ namespace FUExchange.Services.Service
                 UserId = userId,
                 Reason = reportRequest.Reason,
                 Status = false,
-                CreatedBy = userID.ToString(),
+                CreatedBy = userId.ToString(),
                 CreatedTime = DateTime.Now
             };
 
@@ -95,33 +108,24 @@ namespace FUExchange.Services.Service
         }
 
 
-
         public async Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest)
         {
+            if (updateReportRequest == null) throw new ArgumentNullException(nameof(updateReportRequest));
             IHttpContextAccessor httpContext = new HttpContextAccessor();
-            var User = httpContext.HttpContext?.User;
-            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
+            var user = httpContext.HttpContext?.User;
 
-            var existingReport = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
+            var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (!Guid.TryParse(userIdClaim, out Guid userId)) throw new KeyNotFoundException("UserId is invalid.");
 
-            if (updateReportRequest == null)
-            {
-                throw new KeyNotFoundException("Invalid report data.");
-            }
-            if (existingReport == null)
-            {
-                throw new KeyNotFoundException("Report not found.");
-            }
-            else if (existingReport.DeletedTime.HasValue)
-            {
-                throw new KeyNotFoundException("Report has been deleted.");
-            }
+            var existingReport = await _unitOfWork.GetRepository<Report>().Entities
+                .Where(r => r.Id == id && !r.DeletedTime.HasValue)
+                .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Report not found or has been deleted.");
 
             // Cập nhật thông tin của báo cáo
             existingReport.Reason = updateReportRequest.Reason;
             existingReport.Status = updateReportRequest.Status;
-            existingReport.LastUpdatedBy = userID.ToString(); // Gán LastUpdatedBy
-            existingReport.LastUpdatedTime = DateTime.Now;   // Gán LastUpdatedTime
+            existingReport.LastUpdatedBy = userId.ToString();
+            existingReport.LastUpdatedTime = DateTime.Now;
 
             await _unitOfWork.SaveAsync();
         }
@@ -131,21 +135,14 @@ namespace FUExchange.Services.Service
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
 
-            // Lấy UserId từ claims
-            var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            // Lấy UserId từ claims và chuyển đổi thành Guid
+            var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (!Guid.TryParse(userIdClaim, out Guid userId)) throw new KeyNotFoundException("UserId is invalid.");
 
-            // Chuyển đổi UserId từ string sang Guid
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
-            {
-                throw new KeyNotFoundException("UserId is invalid.");
-            }
-
-            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
-
-            if (report == null || report.DeletedTime.HasValue)
-            {
-                throw new KeyNotFoundException("Report not found or has been deleted.");
-            }
+            // Tìm báo cáo dựa trên Id và kiểm tra xem nó chưa bị xóa
+            var report = await _unitOfWork.GetRepository<Report>().Entities
+                .Where(r => r.Id == id && !r.DeletedTime.HasValue)
+                .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Report not found or has been deleted.");
 
             // Gán DeletedBy và DeletedTime trước khi xóa
             report.DeletedBy = userId.ToString();
@@ -184,19 +181,19 @@ namespace FUExchange.Services.Service
         //Thêm API check trạng thái report cho admin
         public async Task<ReportStatusResponseModel> CheckReportStatusForAdminAsync(string id)
         {
-            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
-            if (report == null || report.DeletedTime.HasValue)
-            {
-                throw new KeyNotFoundException("Report not found or has been deleted.");
-            }
+            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id)
+              ?? throw new KeyNotFoundException("Report not found or has been deleted.");
 
+            // Nếu muốn thêm kiểm tra DeletedTime trong lệnh throw:
+            if (report.DeletedTime.HasValue)
+                throw new KeyNotFoundException("Report has been deleted.");
             return new ReportStatusResponseModel
             {
                 ReportId = report.Id.ToString(),
-                Status = report.Status,
-                CreatedBy = report.CreatedBy,
+                Status = report.Status
+                CreatedBy = report.CreatedBy!,
                 CreatedTime = report.CreatedTime,
-                LastUpdatedBy = report.LastUpdatedBy,
+                LastUpdatedBy = report.LastUpdatedBy!,
                 LastUpdatedTime = report.LastUpdatedTime
             };
         }

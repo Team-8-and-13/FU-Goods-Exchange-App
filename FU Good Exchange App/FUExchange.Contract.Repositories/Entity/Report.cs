@@ -7,7 +7,7 @@ namespace FUExchange.Contract.Repositories.Entity
 {
     public class Report : BaseEntity
     {
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; } = Guid.Empty;
         [Required]
         public string Reason { get; set; } = string.Empty;
         public bool Status { get; set; }

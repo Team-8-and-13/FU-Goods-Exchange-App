@@ -15,6 +15,7 @@
 
         // Thuộc tính để lưu trữ số phần tử trên mỗi trang
         public int PageSize { get; private set; }
+        public int TotalCount { get; set; }
 
         // Constructor để khởi tạo danh sách phân trang
         public BasePaginatedList(IReadOnlyCollection<T> items, int count, int pageNumber, int pageSize)

@@ -15,5 +15,6 @@ namespace FUExchange.Core.Constants
 
         [CustomName("Internal Server Error")]
         ServerError = 500
+
     }
 }

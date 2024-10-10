@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+//Report
 builder.Services.AddScoped<IReportService, ReportService>();
 // Cấu hình appsettings
 builder.Configuration
