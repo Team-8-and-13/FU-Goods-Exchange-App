@@ -109,35 +109,55 @@ namespace FUExchange.Services.Service
 
         public async Task<bool> UpdateUser(string userId, UpdateUserModel model, string? adminId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.Users.Include(u => u.UserInfo).FirstOrDefaultAsync(u => u.Id.ToString() == userId);
             if (user == null)
             {
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
             }
 
+            // Update user details
             user.UserName = model.UserName;
             user.Email = model.Email;
             user.LastUpdatedBy = adminId;
             user.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
+            // Update FullName in UserInfo if provided
+            if (!string.IsNullOrEmpty(model.FullName))
+            {
+                if (user.UserInfo != null)
+                {
+                    user.UserInfo.FullName = model.FullName;
+                }
+                else
+                {
+                    user.UserInfo = new UserInfo
+                    {
+                        FullName = model.FullName
+                    };
+                }
+            }
+
+            // Hash password if provided
             if (!string.IsNullOrEmpty(model.Password))
             {
                 user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, model.Password);
             }
 
+            // Handle role updates
             var currentRoles = await _userManager.GetRolesAsync(user);
             if (!currentRoles.Contains(model.Role))
             {
                 var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                if (!removeRolesResult.Succeeded) return false; // Failed to remove old roles
+                if (!removeRolesResult.Succeeded) return false;
 
                 var addRoleResult = await _userManager.AddToRoleAsync(user, model.Role);
-                if (!addRoleResult.Succeeded) return false; // Failed to add new role
+                if (!addRoleResult.Succeeded) return false;
             }
 
             var result = await _userManager.UpdateAsync(user);
-            return result.Succeeded; // Return true or false based on update success
+            return result.Succeeded;
         }
+
 
         public async Task<bool> DeleteUser(string userId, string? adminId)
         {
