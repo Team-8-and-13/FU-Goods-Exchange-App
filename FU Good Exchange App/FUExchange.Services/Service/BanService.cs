@@ -45,16 +45,6 @@ namespace FUExchange.Services.Service
                 throw new KeyNotFoundException("Ban đã bị xóa.");
             }
 
-            var ba = new BanModelView
-            {
-                ReportId = ban.Id,
-                Expires = ban.Expires
-            };
-
-<<<<<<< Updated upstream
-            return ba ??
-                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy "); ;
-=======
             var banView = new BanModelView
             {
                 ReportId=ban.Id,
@@ -62,8 +52,8 @@ namespace FUExchange.Services.Service
             };
 
             return banView ??
-                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy Ban"); ;
->>>>>>> Stashed changes
+                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy Ban"); 
+
         }
 
         public async Task CreateBan(CreateBanModelView createBanModel)
