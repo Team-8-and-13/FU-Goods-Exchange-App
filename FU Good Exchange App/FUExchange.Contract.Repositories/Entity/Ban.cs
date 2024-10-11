@@ -1,4 +1,6 @@
 ﻿using FUExchange.Core.Base;
+using FUExchange.Repositories.Entity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FUExchange.Contract.Repositories.Entity

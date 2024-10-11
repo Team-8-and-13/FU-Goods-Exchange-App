@@ -3,6 +3,7 @@ using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
 using FUExchange.Core.Base;
 using FUExchange.Core.Constants;
+using FUExchange.Core.Response;
 using FUExchange.ModelViews.BanModelViews;
 using FUExchange.Services.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,7 @@ namespace FUExchangeBE.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBan(string id)
         {
+<<<<<<< Updated upstream
             try
             {
                 var ban = await _banService.GetBan(id);
@@ -53,6 +55,13 @@ namespace FUExchangeBE.API.Controllers
                     data: ex.Message
                 ));
             }
+=======
+            var ban = await _banService.GetBan(id);
+            return Ok(new BaseResponseModel(
+                StatusCodes.Status200OK,
+                ResponseCodeConstants.SUCCESS,
+                ban));
+>>>>>>> Stashed changes
         }
 
         [HttpPost]
@@ -80,43 +89,21 @@ namespace FUExchangeBE.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBan(string id, CreateBanModelView updateBanModel)
         {
-            try
-            {
-                await _banService.UpdateBan(id, updateBanModel);
-                return Ok(new BaseResponse<string>(
-                 statusCode: StatusCodeHelper.OK,
-                 code: StatusCodeHelper.OK.ToString(),
-                 data: "Update sucessfully."));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }
+            await _banService.UpdateBan(id, updateBanModel);
+            return Ok(new BaseResponseModel(
+                     StatusCodes.Status200OK,
+                     ResponseCodeConstants.SUCCESS,
+                     "Update successfully"));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBan(string id)
         {
-            try
-            {
-                await _banService.DeleteBan(id);
-                return Ok(new BaseResponse<string>(
-                 statusCode: StatusCodeHelper.OK,
-                 code: StatusCodeHelper.OK.ToString(),
-                 data: "Delete sucessfully."));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }
+            await _banService.DeleteBan(id);
+            return Ok(new BaseResponseModel(
+                     StatusCodes.Status200OK,
+                     ResponseCodeConstants.SUCCESS,
+                     "Delete successfully"));
         }
     }
 }

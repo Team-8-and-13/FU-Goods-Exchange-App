@@ -4,6 +4,7 @@ using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
 using FUExchange.Core.Constants;
 using FUExchange.ModelViews.BanModelViews;
+using FUExchange.ModelViews.CommentModelViews;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using static FUExchange.Core.Base.BaseException;
@@ -19,22 +20,29 @@ namespace FUExchange.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<BasePaginatedList<Ban>> GetAllBans(int pageIndex, int pageSize)
+        public async Task<BasePaginatedList<BanModelView>> GetAllBans(int pageIndex, int pageSize)
         {
             var query = _unitOfWork.GetRepository<Ban>().Entities.Where(p => !p.DeletedTime.HasValue);
-            return await _unitOfWork.GetRepository<Ban>().GetPagging(query, pageIndex, pageSize);
+            var paginatedList = await _unitOfWork.GetRepository<Ban>().GetPagging(query, pageIndex, pageSize);
+            var mappedList = paginatedList.Items.Select(c => new BanModelView
+            {
+                ReportId=c.Id.ToString(),
+                Expires=c.Expires
+            }).ToList();
+            return new BasePaginatedList<BanModelView>(mappedList, paginatedList.TotalItems, paginatedList.CurrentPage, paginatedList.PageSize);
         }
+        
 
         public async Task<BanModelView?> GetBan(string id)
         {
             var ban = await _unitOfWork.GetRepository<Ban>().GetByIdAsync(id);
             if (ban == null)
             {
-                throw new KeyNotFoundException("Ban not found.");
+                throw new KeyNotFoundException("Không tìm thấy Ban.");
             }
             else if (ban.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Ban has been deleted.");
+                throw new KeyNotFoundException("Ban đã bị xóa.");
             }
 
             var ba = new BanModelView
@@ -43,8 +51,19 @@ namespace FUExchange.Services.Service
                 Expires = ban.Expires
             };
 
+<<<<<<< Updated upstream
             return ba ??
                  throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy "); ;
+=======
+            var banView = new BanModelView
+            {
+                ReportId=ban.Id,
+                Expires=ban.Expires
+            };
+
+            return banView ??
+                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy Ban"); ;
+>>>>>>> Stashed changes
         }
 
         public async Task CreateBan(CreateBanModelView createBanModel)
@@ -54,7 +73,7 @@ namespace FUExchange.Services.Service
             Guid userName = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserName")?.Value);
             if (createBanModel == null)
             {
-                throw new KeyNotFoundException("Invalid ban data.");
+                throw new KeyNotFoundException("Dữ liệu không hợp lệ.");
             }
             var ban = new Ban
             {
@@ -77,15 +96,15 @@ namespace FUExchange.Services.Service
 
             if (updateBanModel == null)
             {
-                throw new KeyNotFoundException("Invalid ban data.");
+                throw new KeyNotFoundException("Dữ liệu không hợp lệ.");
             }
             if (existBan == null)
             {
-                throw new KeyNotFoundException("Ban not found.");
+                throw new KeyNotFoundException("Không tìm thấy Ban.");
             }
             else if (existBan.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Ban has been deleted.");
+                throw new KeyNotFoundException("Ban đã bị xóa.");
             }
             existBan.Expires = updateBanModel.Expires;
             existBan.LastUpdatedBy = userName.ToString();
@@ -94,7 +113,7 @@ namespace FUExchange.Services.Service
         }
 
 
-        public async Task<Ban> DeleteBan(string id)
+        public async Task DeleteBan(string id)
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
@@ -103,20 +122,25 @@ namespace FUExchange.Services.Service
 
             if (ban == null || ban.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Ban not found or has been deleted.");
+                throw new KeyNotFoundException("Ban không tìm thấy hoặc đã bị xóa.");
             }
 
             ban.DeletedBy = userName.ToString();
             ban.DeletedTime = DateTime.Now;
             await _unitOfWork.GetRepository<Ban>().UpdateAsync(ban);
             await _unitOfWork.SaveAsync();
-            return ban;
         }
 
-        public async Task<BasePaginatedList<Ban>> GetBanPaginated(int pageIndex, int pageSize)
+        public async Task<BasePaginatedList<BanModelView>> GetBanPaginated(int pageIndex, int pageSize)
         {
             var query = _unitOfWork.GetRepository<Ban>().Entities;
-            return await _unitOfWork.GetRepository<Ban>().GetPagging(query, pageIndex, pageSize);
+            var paginatedList = await _unitOfWork.GetRepository<Ban>().GetPagging(query, pageIndex, pageSize);
+            var mappedList = paginatedList.Items.Select(c => new BanModelView
+            {
+                ReportId = c.Id.ToString(),
+                Expires = c.Expires
+            }).ToList();
+            return new BasePaginatedList<BanModelView>(mappedList, paginatedList.TotalItems, paginatedList.CurrentPage, paginatedList.PageSize);
         }
 
     

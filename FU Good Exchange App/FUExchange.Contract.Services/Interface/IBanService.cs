@@ -7,11 +7,17 @@ namespace FUExchange.Contract.Services.Interface
 {
     public interface IBanService
     {
+<<<<<<< Updated upstream
         Task<BasePaginatedList<Ban>> GetAllBans(int pageIndex, int pageSize);
         Task<BanModelView?> GetBan(string id);
         Task CreateBan(CreateBanModelView createBanModel);
+=======
+        Task<BasePaginatedList<BanModelView>> GetAllBans(int pageIndex, int pageSize);
+        Task<BanModelView> GetBan(string id);
+        Task ApproveReport(string rpId, CreateBanModelView createBanModel);
+>>>>>>> Stashed changes
         Task UpdateBan(string id, CreateBanModelView updateBanModel);
-        Task<Ban> DeleteBan(string id);
-        Task<BasePaginatedList<Ban>> GetBanPaginated( int pageIndex, int pageSize);
+        Task DeleteBan(string id);
+        Task<BasePaginatedList<BanModelView>> GetBanPaginated( int pageIndex, int pageSize);
     }
 }
