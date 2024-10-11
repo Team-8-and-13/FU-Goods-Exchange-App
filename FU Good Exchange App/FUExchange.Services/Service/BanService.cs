@@ -1,9 +1,12 @@
-﻿using FUExchange.Contract.Repositories.Entity;
+﻿using AutoMapper;
+using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Repositories.Interface;
+using FUExchange.Contract.Repositories.PaggingItems;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
 using FUExchange.Core.Constants;
 using FUExchange.ModelViews.BanModelViews;
+using FUExchange.ModelViews.ProductModelViews;
 using Microsoft.AspNetCore.Http;
 using static FUExchange.Core.Base.BaseException;
 
@@ -12,19 +15,22 @@ namespace FUExchange.Services.Service
     public class BanService : IBanService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public BanService(IUnitOfWork unitOfWork)
+        public BanService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<BasePaginatedList<Ban>> GetAllBans(int pageIndex, int pageSize)
+        public async Task<PaginatedList<BanModelView>> GetAllBans(int pageIndex, int pageSize)
         {
-            var query = _unitOfWork.GetRepository<Ban>().Entities.Where(p => !p.DeletedTime.HasValue);
-            return await _unitOfWork.GetRepository<Ban>().GetPagging(query, pageIndex, pageSize);
+            var query = _unitOfWork.GetRepository<Ban>().Entities.Where(p => !p.DeletedTime.HasValue).OrderByDescending(c => c.CreatedTime); ;
+            List<BanModelView> bans = await query.ProjectToListAsync<BanModelView>(_mapper.ConfigurationProvider);
+            return PaginatedList<BanModelView>.Create(bans, pageIndex, pageSize);
         }
 
-        public async Task<Ban?> GetBan(string id)
+        public async Task<BanModelView> GetBan(string id)
         {
             var ban = await _unitOfWork.GetRepository<Ban>().GetByIdAsync(id);
             if (ban == null)
@@ -35,10 +41,10 @@ namespace FUExchange.Services.Service
             {
                 throw new KeyNotFoundException("Ban has been deleted.");
             }
+            
+            BanModelView banmodelview = _mapper.Map<BanModelView>(ban);
 
-
-            return ban ??
-                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy "); ;
+            return banmodelview ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy ");
         }
 
         public async Task ApproveReport(string rpId, CreateBanModelView createBanModel)
@@ -92,7 +98,7 @@ namespace FUExchange.Services.Service
         }
 
 
-        public async Task<Ban> DeleteBan(string id)
+        public async Task DeleteBan(string id)
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
@@ -111,13 +117,6 @@ namespace FUExchange.Services.Service
             await _unitOfWork.GetRepository<Ban>().UpdateAsync(ban);
             await _unitOfWork.GetRepository<Report>().UpdateAsync(rp);
             await _unitOfWork.SaveAsync();
-            return ban;
-        }
-
-        public async Task<BasePaginatedList<Ban>> GetBanPaginated(int pageIndex, int pageSize)
-        {
-            var query = _unitOfWork.GetRepository<Ban>().Entities;
-            return await _unitOfWork.GetRepository<Ban>().GetPagging(query, pageIndex, pageSize);
         }
 
     

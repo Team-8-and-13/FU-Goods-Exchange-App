@@ -55,6 +55,7 @@ namespace FUExchange.Services.Service
                 pageIndex,
                 pageSize
             );
+        }
         
         public async Task<ReportResponseModel?> GetReportById(string id)
         {
@@ -82,7 +83,7 @@ namespace FUExchange.Services.Service
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
-            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value)
+            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
             if (reportRequest == null || string.IsNullOrEmpty(reportRequest.UserId))
             {
                 throw new ArgumentException("UserId is required.");
@@ -190,7 +191,7 @@ namespace FUExchange.Services.Service
             return new ReportStatusResponseModel
             {
                 ReportId = report.Id.ToString(),
-                Status = report.Status
+                Status = report.Status,
                 CreatedBy = report.CreatedBy!,
                 CreatedTime = report.CreatedTime,
                 LastUpdatedBy = report.LastUpdatedBy!,

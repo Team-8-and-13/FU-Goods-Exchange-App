@@ -3,6 +3,7 @@ using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
 using FUExchange.Core.Base;
 using FUExchange.Core.Constants;
+using FUExchange.Core.Response;
 using FUExchange.ModelViews.BanModelViews;
 using FUExchange.Services.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -34,23 +35,13 @@ namespace FUExchangeBE.API.Controllers
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBan(string id)
-        {
-            try
-            {
+        {    
                 var ban = await _banService.GetBan(id);
-                return Ok(new BaseResponse<Ban>(
-                 statusCode: StatusCodeHelper.OK,
-                 code: StatusCodeHelper.OK.ToString(),
-                 data: ban));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         ban));
+           
         }
 
         [HttpPost]
