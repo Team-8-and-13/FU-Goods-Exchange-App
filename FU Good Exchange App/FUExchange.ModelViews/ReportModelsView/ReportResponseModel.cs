@@ -8,8 +8,8 @@ namespace FUExchange.ModelViews.ReportModelsView
 {
     public class ReportResponseModel
     {
-        public string Id { get; set; }
-        public string Reason { get; set; }
+        public string? Id { get; set; }
+        public string? Reason { get; set; }
         public bool Status { get; set; }
         public Guid? UserId { get; set; }
     }
