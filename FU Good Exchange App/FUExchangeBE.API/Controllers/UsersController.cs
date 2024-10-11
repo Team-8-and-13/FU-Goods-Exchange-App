@@ -36,11 +36,21 @@ namespace FUExchangeBE.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
-            var user = await _userService.GetById(id);
-            return Ok(new BaseResponseModel(
-            StatusCodes.Status200OK,
-            ResponseCodeConstants.SUCCESS,
-            user));
+            try
+            {
+                var user = await _userService.GetById(id);
+                return Ok(new BaseResponseModel(
+                    StatusCodes.Status200OK,
+                    ResponseCodeConstants.SUCCESS,
+                    user));
+            }
+            catch (ErrorException ex)
+            {
+                return NotFound(new BaseResponseModel(
+                    StatusCodes.Status404NotFound,
+                    ResponseCodeConstants.NOT_FOUND,
+                    data: "Nguười dùng không tồn tại"));
+            }
         }
 
 
@@ -61,28 +71,41 @@ namespace FUExchangeBE.API.Controllers
 
             return BadRequest(new BaseResponse<string>(
                 statusCode: StatusCodeHelper.BadRequest,
-                code: ResponseCodeConstants.ERROR,
+                code: StatusCodeHelper.BadRequest.ToString(),
                 data: "Tạo người dùng không thành công."));
         }
 
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUser(string userId, UpdateUserModel updateUserModel)
         {
-            var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Get admin ID from token
-
-            var isSuccess = await _userService.UpdateUser(userId, updateUserModel, adminId);
-            if (isSuccess)
+            try
             {
-                return Ok(new BaseResponse<string>(
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Get admin ID from token
+
+                var isSuccess = await _userService.UpdateUser(userId, updateUserModel, adminId);
+                if (isSuccess)
+                {
+                    return Ok(new BaseResponse<string>(
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
                     data: "Cập nhật người dùng thành công."));
+                }
+                else
+                {
+                    return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: StatusCodeHelper.BadRequest.ToString(),
+                     data: "Cập nhật người dùng không thành công."));
+                }
+            }
+            catch (ErrorException ex)
+            {
+                return NotFound(new BaseResponseModel(
+                    StatusCodes.Status404NotFound,
+                    ResponseCodeConstants.NOT_FOUND,
+                    data: "Nguười dùng không tồn tại"));
             }
 
-            return NotFound(new BaseResponse<string>(
-                statusCode: StatusCodeHelper.BadRequest,
-                code: ResponseCodeConstants.ERROR,
-                data: "Cập nhật người dùng không thành công."));
         }
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(string userId)
@@ -95,23 +118,26 @@ namespace FUExchangeBE.API.Controllers
                 if (isSuccess)
                 {
                     return Ok(new BaseResponse<string>(
-                        StatusCodeHelper.OK,
-                        StatusCodeHelper.OK.ToString(),
-                        "Xóa người dùng thành công."));
+                statusCode: StatusCodeHelper.OK,
+                code: StatusCodeHelper.OK.ToString(),
+                data: "Xóa người dùng thành công."));
                 }
 
-                return BadRequest(new BaseResponse<string>(
-                    StatusCodeHelper.BadRequest,
-                    ResponseCodeConstants.ERROR,
-                    "Xóa người dùng không thành công."));
+                else
+                {
+                    return BadRequest(new BaseResponse<string>(
+                        statusCode: StatusCodeHelper.BadRequest,
+                        code: StatusCodeHelper.BadRequest.ToString(),
+                        data: "Xóa người dùng không thành công."
+                    ));
+                }
             }
             catch (ErrorException ex)
             {
-                // Handle ErrorException and return appropriate response
                 return NotFound(new BaseResponseModel(
                     StatusCodes.Status404NotFound,
                     ResponseCodeConstants.NOT_FOUND,
-                    ex.Message));
+                    data: "Nguười dùng không tồn tại"));
             }
         }
 

@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using static FUExchange.Core.Base.BaseException;
 
@@ -115,13 +114,11 @@ namespace FUExchange.Services.Service
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
             }
 
-            // Update user details
             user.UserName = model.UserName;
             user.Email = model.Email;
             user.LastUpdatedBy = adminId;
             user.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
-            // Update FullName in UserInfo if provided
             if (!string.IsNullOrEmpty(model.FullName))
             {
                 if (user.UserInfo != null)
@@ -158,10 +155,9 @@ namespace FUExchange.Services.Service
             return result.Succeeded;
         }
 
-
         public async Task<bool> DeleteUser(string userId, string? adminId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
             if (user == null)
             {
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại!");
@@ -170,22 +166,8 @@ namespace FUExchange.Services.Service
             user.DeletedBy = adminId;
             user.DeletedTime = CoreHelper.SystemTimeNow;
 
-            var result = await _userManager.DeleteAsync(user);
+            var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
-        }
-
-        public async Task<UserResponseModel?> GetById(Guid userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            if (user == null) return null;
-
-            return new UserResponseModel
-            {
-                Id = user.Id.ToString(),
-                Email = user.Email,
-                Username = user.UserName != null ? user.UserName : "",
-                FullName = user.UserInfo != null ? user.UserInfo.FullName : ""
-            };
         }
     }
 }
