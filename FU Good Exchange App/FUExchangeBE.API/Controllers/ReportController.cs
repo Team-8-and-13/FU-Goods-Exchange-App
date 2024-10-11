@@ -5,7 +5,6 @@ using FUExchange.Core.Constants;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using FUExchange.Core.Base;
 using FUExchange.ModelViews.ReportModelsView;
 namespace FUExchangeBE.API.Controllers
 {

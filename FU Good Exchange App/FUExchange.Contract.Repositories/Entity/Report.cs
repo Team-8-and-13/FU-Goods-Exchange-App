@@ -12,6 +12,6 @@ namespace FUExchange.Contract.Repositories.Entity
         public string Reason { get; set; } = string.Empty;
         public bool Status { get; set; }
         [ForeignKey("UserId")]
-        public virtual ApplicationUser? User { get; set; }
+        public ApplicationUser? User { get; set; }
     }
 }

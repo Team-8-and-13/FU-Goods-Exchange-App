@@ -7,7 +7,6 @@ using FUExchange.ModelViews.ReportModelsView;
 using FUExchange.ModelViews.ReportModelViews;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using static FUExchange.Core.Base.BaseException;
 
 namespace FUExchange.Services.Service
@@ -20,7 +19,6 @@ namespace FUExchange.Services.Service
         {
             _unitOfWork = unitOfWork;
         }
-
         public async Task<ReportResponseModel?> GetReportByIdAsync(string id)
         {
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
@@ -35,6 +33,12 @@ namespace FUExchange.Services.Service
             };
         }
 
+        //public async Task<BasePaginatedList<Report>> GetAllReports(int pageIndex, int pageSize)
+        //{
+        //    var query = _unitOfWork.GetRepository<Report>().Entities
+        //        .Where(r => !r.DeletedTime.HasValue);
+        //    return await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
+        //}
         public async Task<BasePaginatedList<ReportListResponseModel>> GetAllReports(int pageIndex, int pageSize)
         {
             var query = _unitOfWork.GetRepository<Report>().Entities
@@ -55,7 +59,7 @@ namespace FUExchange.Services.Service
                 pageIndex,
                 pageSize
             );
-        
+        }
         public async Task<ReportResponseModel?> GetReportById(string id)
         {
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
@@ -77,12 +81,8 @@ namespace FUExchange.Services.Service
             };
         }
 
-
         public async Task CreateReport(ReportRequestModel reportRequest)
         {
-            IHttpContextAccessor httpContext = new HttpContextAccessor();
-            var User = httpContext.HttpContext?.User;
-            Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value)
             if (reportRequest == null || string.IsNullOrEmpty(reportRequest.UserId))
             {
                 throw new ArgumentException("UserId is required.");
@@ -107,10 +107,10 @@ namespace FUExchange.Services.Service
             await _unitOfWork.SaveAsync();
         }
 
-
         public async Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest)
         {
             if (updateReportRequest == null) throw new ArgumentNullException(nameof(updateReportRequest));
+
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
 
@@ -190,7 +190,7 @@ namespace FUExchange.Services.Service
             return new ReportStatusResponseModel
             {
                 ReportId = report.Id.ToString(),
-                Status = report.Status
+                Status = report.Status,
                 CreatedBy = report.CreatedBy!,
                 CreatedTime = report.CreatedTime,
                 LastUpdatedBy = report.LastUpdatedBy!,
