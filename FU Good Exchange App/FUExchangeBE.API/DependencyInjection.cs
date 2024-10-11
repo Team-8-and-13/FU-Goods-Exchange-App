@@ -50,6 +50,7 @@ namespace FUExchangeBE.API
             services.AddScoped<IExchangeService, ExchangeService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IBanService, BanService>();
         }
     }
 }

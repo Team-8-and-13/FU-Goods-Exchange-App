@@ -12,6 +12,5 @@ namespace FUExchange.Contract.Services.Interface
         Task<BasePaginatedList<CommentModelView>> GetAllCommentsFromProduct(string productid, int pageIndex, int pageSize);
         Task UpdateComment(string id, CreateCommentModelViews viewModel);
         Task DeleteComment(string id);
-        Task<BasePaginatedList<CommentModelView>> GetCommentPaginated(int pageIndex, int pageSize);
     }
 }

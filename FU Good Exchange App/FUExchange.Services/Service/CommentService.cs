@@ -26,11 +26,13 @@ namespace FUExchange.Services.Service
 
         public async Task<BasePaginatedList<CommentModelView>> GetAllCommentsFromProduct(string productid, int pageIndex, int pageSize)
         {
-            var query = _unitOfWork.GetRepository<Comment>().Entities.Where(c => c.ProductId == productid && !c.DeletedTime.HasValue);
+            var query = _unitOfWork.GetRepository<Comment>().Entities.Where(c => c.ProductId == productid && !c.DeletedTime.HasValue).OrderByDescending(c => c.CreatedTime);
             var paginatedList = await _unitOfWork.GetRepository<Comment>().GetPagging(query, pageIndex, pageSize);
             var mappedList = paginatedList.Items.Select(c => new CommentModelView
             {
-                CommentId = c.Id.ToString(),
+                UserId = c.UserId,
+                CommentId = c.Id,
+                ReplyCommentId = c.RepCmtId == null ? c.Id : c.RepCmtId,
                 CommentText = c.CommentText
             }).ToList();
             return new BasePaginatedList<CommentModelView>(mappedList, paginatedList.TotalItems, paginatedList.CurrentPage, paginatedList.PageSize);
@@ -50,7 +52,9 @@ namespace FUExchange.Services.Service
 
             var commentView = new CommentModelView
             {
+                UserId = comment.UserId,
                 CommentId = comment.Id,
+                ReplyCommentId = comment.RepCmtId == null ? comment.Id : comment.RepCmtId,
                 CommentText = comment.CommentText
             };
 
@@ -207,19 +211,6 @@ namespace FUExchange.Services.Service
                 await _unitOfWork.GetRepository<Comment>().UpdateAsync(comment);
                 await _unitOfWork.SaveAsync();
             }
-        }
-        public async Task<BasePaginatedList<CommentModelView>> GetCommentPaginated(int pageIndex, int pageSize)
-        {
-            var query = _unitOfWork.GetRepository<Comment>().Entities.Where(c => !c.DeletedTime.HasValue); // Lọc comment chưa bị xóa
-            var paginatedList = await _unitOfWork.GetRepository<Comment>().GetPagging(query, pageIndex, pageSize);
-
-            // Ánh xạ từ Comment sang CommentModelView
-            var mappedList = paginatedList.Items.Select(c => new CommentModelView
-            {
-                CommentId = c.Id.ToString(),
-                CommentText = c.CommentText
-            }).ToList();
-            return new BasePaginatedList<CommentModelView>(mappedList, paginatedList.TotalItems, paginatedList.CurrentPage, paginatedList.PageSize);
         }
     }
 }

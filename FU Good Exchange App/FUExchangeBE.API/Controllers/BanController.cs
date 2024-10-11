@@ -14,7 +14,7 @@ namespace FUExchangeBE.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "Moderator")]
+    [Authorize(Policy = "ModeratorPolicy")]
 
     public class BanController : Controller
     {
