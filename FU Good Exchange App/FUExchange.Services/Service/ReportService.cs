@@ -32,13 +32,6 @@ namespace FUExchange.Services.Service
                 Status = report.Status
             };
         }
-
-        //public async Task<BasePaginatedList<Report>> GetAllReports(int pageIndex, int pageSize)
-        //{
-        //    var query = _unitOfWork.GetRepository<Report>().Entities
-        //        .Where(r => !r.DeletedTime.HasValue);
-        //    return await _unitOfWork.GetRepository<Report>().GetPagging(query, pageIndex, pageSize);
-        //}
         public async Task<BasePaginatedList<ReportListResponseModel>> GetAllReports(int pageIndex, int pageSize)
         {
             var query = _unitOfWork.GetRepository<Report>().Entities
@@ -85,13 +78,13 @@ namespace FUExchange.Services.Service
         {
             if (reportRequest == null || string.IsNullOrEmpty(reportRequest.UserId))
             {
-                throw new ArgumentException("UserId is required.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "UserId là bắt buộc.");
             }
 
             // Chuyển đổi từ string sang Guid
             if (!Guid.TryParse(reportRequest.UserId, out Guid userId))
             {
-                throw new ArgumentException("Invalid UserId format.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Định dạng UserId không hợp lệ.");
             }
 
             var report = new Report
@@ -106,6 +99,7 @@ namespace FUExchange.Services.Service
             await _unitOfWork.GetRepository<Report>().InsertAsync(report);
             await _unitOfWork.SaveAsync();
         }
+
 
         public async Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest)
         {
@@ -188,7 +182,6 @@ namespace FUExchange.Services.Service
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id)
                 ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy báo cáo hoặc đã bị xóa.");
 
-            // Nếu muốn thêm kiểm tra DeletedTime trong lệnh throw:
             if (report.DeletedTime.HasValue)
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Báo cáo đã bị xóa.");
             return new ReportStatusResponseModel
