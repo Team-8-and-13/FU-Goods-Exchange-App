@@ -40,13 +40,20 @@ namespace FUExchange.Services.Service
                     return string.Empty; // Invalid credentials
                 }
 
+                // Check if the user has been blocked (reported)
+                bool reported = _unitOfWork.GetRepository<Report>().Entities.Any(u => u.UserId == user.Id && u.Status);
+                if (reported)
+                {
+                    return user.UserName + " has been blocked !!!";
+                }
+
                 var roles = await _userManager.GetRolesAsync(user);
                 var authClaims = new List<Claim>
-                {
-                    new Claim("UserId", user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                };
+        {
+            new Claim("UserId", user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
 
                 foreach (var role in roles)
                 {
@@ -61,19 +68,6 @@ namespace FUExchange.Services.Service
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );
-            bool reported = _unitOfWork.GetRepository<Report>().Entities.Any(u => u.UserId == user.Id && u.Status);
-            if (reported)
-            {
-                return user.UserName + " have been blocked !!!";
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var authClaims = new List<Claim>
-            {
-                new Claim("UserId", user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
 
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
@@ -82,6 +76,7 @@ namespace FUExchange.Services.Service
                 return string.Empty;
             }
         }
+
 
         public async Task<IdentityResult> RegisterAsync(RegisterModelView model)
         {
