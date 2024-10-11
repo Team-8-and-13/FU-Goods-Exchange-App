@@ -82,7 +82,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
-                    data: "Report created successfully."
+                    data: "Báo cáo được tạo thành công."
                 ));
             }
             catch (ArgumentNullException ex)
@@ -110,7 +110,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
-                    data: "Report updated successfully."
+                    data: "Báo cáo được cập nhật thành công."
                 ));
             }
             catch (KeyNotFoundException ex)
@@ -135,7 +135,7 @@ namespace FUExchangeBE.API.Controllers
                 return Ok(new BaseResponse<string>(
                     statusCode: StatusCodeHelper.OK,
                     code: StatusCodeHelper.OK.ToString(),
-                    data: "Report deleted successfully."
+                    data: "Đã xóa báo cáo thành công."
                 ));
             }
             catch (KeyNotFoundException ex)

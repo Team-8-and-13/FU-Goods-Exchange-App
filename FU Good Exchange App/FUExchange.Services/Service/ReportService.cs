@@ -23,7 +23,7 @@ namespace FUExchange.Services.Service
         {
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
             if (report == null || report.DeletedTime.HasValue)
-                throw new KeyNotFoundException("Report not found or has been deleted.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy công việc hoặc đã bị xóa.");
 
             return new ReportResponseModel
             {
@@ -65,11 +65,11 @@ namespace FUExchange.Services.Service
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
             if (report == null)
             {
-                throw new KeyNotFoundException("Report not found.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy công việc.");
             }
             else if (report.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Report has been deleted.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Công việc đã bị xóa.");
             }
 
             return new ReportResponseModel
@@ -109,17 +109,20 @@ namespace FUExchange.Services.Service
 
         public async Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest)
         {
-            if (updateReportRequest == null) throw new ArgumentNullException(nameof(updateReportRequest));
+            if (updateReportRequest == null)
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Dữ liệu yêu cầu không hợp lệ.");
 
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
 
             var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            if (!Guid.TryParse(userIdClaim, out Guid userId)) throw new KeyNotFoundException("UserId is invalid.");
+            if (!Guid.TryParse(userIdClaim, out Guid userId))
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "UserId không hợp lệ.");
 
             var existingReport = await _unitOfWork.GetRepository<Report>().Entities
                 .Where(r => r.Id == id && !r.DeletedTime.HasValue)
-                .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Report not found or has been deleted.");
+                .FirstOrDefaultAsync()
+                ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy báo cáo hoặc báo cáo đã bị xóa.");
 
             // Cập nhật thông tin của báo cáo
             existingReport.Reason = updateReportRequest.Reason;
@@ -130,6 +133,7 @@ namespace FUExchange.Services.Service
             await _unitOfWork.SaveAsync();
         }
 
+
         public async Task<Report> DeleteReport(string id)
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
@@ -137,13 +141,13 @@ namespace FUExchange.Services.Service
 
             // Lấy UserId từ claims và chuyển đổi thành Guid
             var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            if (!Guid.TryParse(userIdClaim, out Guid userId)) throw new KeyNotFoundException("UserId is invalid.");
+            if (!Guid.TryParse(userIdClaim, out Guid userId))
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "UserId không hợp lệ.");
 
             // Tìm báo cáo dựa trên Id và kiểm tra xem nó chưa bị xóa
             var report = await _unitOfWork.GetRepository<Report>().Entities
-                .Where(r => r.Id == id && !r.DeletedTime.HasValue)
-                .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Report not found or has been deleted.");
-
+                 .Where(r => r.Id == id && !r.DeletedTime.HasValue)
+                 .FirstOrDefaultAsync() ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy công việc hoặc đã bị xóa.");
             // Gán DeletedBy và DeletedTime trước khi xóa
             report.DeletedBy = userId.ToString();
             report.DeletedTime = DateTime.Now;
@@ -173,7 +177,7 @@ namespace FUExchange.Services.Service
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(reportId);
             if (report == null || report.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Report not found or has been deleted.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy công việc hoặc đã bị xóa.");
             }
 
             return report.Status;
@@ -182,11 +186,11 @@ namespace FUExchange.Services.Service
         public async Task<ReportStatusResponseModel> CheckReportStatusForAdminAsync(string id)
         {
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id)
-              ?? throw new KeyNotFoundException("Report not found or has been deleted.");
+                ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy báo cáo hoặc đã bị xóa.");
 
             // Nếu muốn thêm kiểm tra DeletedTime trong lệnh throw:
             if (report.DeletedTime.HasValue)
-                throw new KeyNotFoundException("Report has been deleted.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Báo cáo đã bị xóa.");
             return new ReportStatusResponseModel
             {
                 ReportId = report.Id.ToString(),
