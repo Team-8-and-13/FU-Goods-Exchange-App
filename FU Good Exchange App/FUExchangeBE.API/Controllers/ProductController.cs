@@ -1,5 +1,6 @@
 ﻿using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Services.Interface;
+using FUExchange.Core.Base;
 using FUExchange.Core.Constants;
 using FUExchange.Core.Response;
 using FUExchange.ModelViews.ProductModelViews;
@@ -40,54 +41,140 @@ namespace FUExchangeBE.API.Controllers
                      products));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("Get_Product_By_ProductId")]
         public async Task<IActionResult> GetProductById(string id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
-            return Ok(new BaseResponseModel(
-                     StatusCodes.Status200OK,
-                     ResponseCodeConstants.SUCCESS,
-                     product));
+            try
+            {
+                var product = await _productService.GetProductByIdAsync(id);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         product));
+            }
+            catch (BaseException.ErrorException ex) {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
+
+            
+        }
+
+        [HttpGet]
+        [Route("Get_Product_By_CommentId")]
+        public async Task<IActionResult> GetProductByCommentId(string CommentId)
+        {
+            try
+            {
+                var product = await _productService.GetProductByCommentId(CommentId);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         product));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateProduct(CreateProductModelView createProductModel)
         {
-            await _productService.CreateProduct(createProductModel);
-            return Ok(new BaseResponseModel(
-                     StatusCodes.Status200OK,
-                     ResponseCodeConstants.SUCCESS,
-                     "Create successfully."));
+            try
+            {
+                await _productService.CreateProduct(createProductModel);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         "Create successfully."));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateProduct(string id, UpdateProductModelView updateProductModel)
         {
-            await _productService.UpdateProduct(id, updateProductModel);
-            return Ok(new BaseResponseModel(
-                     StatusCodes.Status200OK,
-                     ResponseCodeConstants.SUCCESS,
-                     "Update successfully"));
+            try
+            {
+                await _productService.UpdateProduct(id, updateProductModel);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         "Update successfully"));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {
-            await _productService.DeleteProduct(id);
-            return Ok(new BaseResponseModel(
-                     StatusCodes.Status200OK,
-                     ResponseCodeConstants.SUCCESS,
-                     "Delete successfully"));
+            try
+            {
+                await _productService.DeleteProduct(id);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         "Delete successfully"));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
         }
         [HttpPut]
         [Route("api/controller/Rate_For_Product")]
         public async Task<IActionResult> RateProduct(string id, int star)
         {
-            await _productService.RateProduct(id, star);
-            return Ok(new BaseResponseModel(
-                     StatusCodes.Status200OK,
-                     ResponseCodeConstants.SUCCESS,
-                     "Rate successfully"));
+            try
+            {
+                await _productService.RateProduct(id, star);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         "Rate successfully"));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
+
         }
 
         [Authorize(Policy = "ModeratorPolicy")]
@@ -95,11 +182,24 @@ namespace FUExchangeBE.API.Controllers
         [Route("api/controller/Approve_Product")]
         public async Task<IActionResult> Approve(string id)
         {
-            await _productService.ApproveProduct(id);
-            return Ok(new BaseResponseModel(
-                     StatusCodes.Status200OK,
-                     ResponseCodeConstants.SUCCESS,
-                     "Approve successfully"));
+            try
+            {
+                await _productService.ApproveProduct(id);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         "Approve successfully"));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
+
         }
     }
 }

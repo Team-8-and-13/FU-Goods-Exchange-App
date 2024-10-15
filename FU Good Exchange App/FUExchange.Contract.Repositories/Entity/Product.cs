@@ -19,6 +19,7 @@ namespace FUExchange.Contract.Repositories.Entity
         public bool Approve {  get; set; }
         public bool Sold {  get; set; }
         public int Rating { get; set; }
+        public int TotalStar { get; set; }
         [ForeignKey("CategoryId")]
         public virtual Category? Category { get; set; }
         [ForeignKey("SellerId")]

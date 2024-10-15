@@ -1,17 +1,14 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Azure.Core;
 using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Repositories.PaggingItems;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
 using FUExchange.Core.Constants;
-using FUExchange.Core.Utils;
 using FUExchange.ModelViews.ProductModelViews;
-using FUExchange.Repositories.UOW;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.SqlServer.Server;
 using static FUExchange.Core.Base.BaseException;
 
 
@@ -34,17 +31,28 @@ namespace FUExchange.Services.Service
         }
         public async Task<PaginatedList<SelectProductModelView>> GetAllProductsFromUser(int pageIndex, int pageSize)
         {
-            IQueryable<Product> query = _unitOfWork.GetRepository<Product>().Entities.Where(p => !p.DeletedTime.HasValue && p.Approve).OrderByDescending(c => c.CreatedTime);
+            IQueryable<Product> query = _unitOfWork.GetRepository<Product>().Entities.Where(p => !p.DeletedTime.HasValue && p.Approve && !p.Sold).OrderByDescending(c => c.CreatedTime);
             List<SelectProductModelView> products = await query.ProjectToListAsync<SelectProductModelView>(_mapper.ConfigurationProvider);
             return PaginatedList<SelectProductModelView>.Create(products, pageIndex, pageSize);
         }
         public async Task<SelectProductModelView?> GetProductByIdAsync(string id)
         {
-            Product? product = await _unitOfWork.GetRepository<Product>().Entities.Where(c => c.Id == id && c.Approve == true && !c.DeletedTime.HasValue).FirstOrDefaultAsync() ??
+            Product? product = await _unitOfWork.GetRepository<Product>().Entities.Where(c => c.Id == id && c.Approve == true && !c.DeletedTime.HasValue && !c.Sold).FirstOrDefaultAsync() ??
                  throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy sản phẩm");
             SelectProductModelView responeProduct = _mapper.Map<SelectProductModelView>(product);
             return responeProduct;
         }
+        public async Task<SelectProductModelView?> GetProductByCommentId(string id)
+        {
+            Comment? comment = await _unitOfWork.GetRepository<Comment>().GetByIdAsync(id) ?? 
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy bình luận");
+
+            Product? product = await _unitOfWork.GetRepository<Product>().Entities.Where(c => c.Id == comment.ProductId && c.Approve == true && !c.DeletedTime.HasValue && !c.Sold).FirstOrDefaultAsync() ??
+                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy sản phẩm");
+            SelectProductModelView responeProduct = _mapper.Map<SelectProductModelView>(product);
+            return responeProduct;
+        }
+
         public async Task CreateProduct(CreateProductModelView createProductModelView)
         {
             //Lấy thông tin user hiện hành
@@ -55,10 +63,10 @@ namespace FUExchange.Services.Service
             {
                 CategoryId = createProductModelView.CategoryId,
                 Name = createProductModelView.Name,
-                Price = createProductModelView.Price,
+                Price = createProductModelView.Price < 0 ? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Giá tiền phải là số nguyên dương") : createProductModelView.Price,
                 Description = createProductModelView.Description,
                 SellerId = new Guid(user.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value), // lấy userId
-                CreatedBy = user.Identity.Name // Lấy userName từ token đã được authorize
+                CreatedBy = user.Identity?.Name // Lấy userName từ token đã được authorize
             };
 
             await _unitOfWork.GetRepository<Product>().InsertAsync(product);
@@ -81,7 +89,7 @@ namespace FUExchange.Services.Service
             
             //Cập nhật hoặc giữ nguyên giá trị cho sản phẩm
             existProduct.Name = !string.IsNullOrEmpty(updateProductModelView.Name) ? updateProductModelView.Name : existProduct.Name;
-            existProduct.Price = updateProductModelView.Price != 0 ? updateProductModelView.Price : existProduct.Price;
+            existProduct.Price = (updateProductModelView.Price != 0 || updateProductModelView.Price < 0) ? updateProductModelView.Price : existProduct.Price;
             existProduct.Description = !string.IsNullOrEmpty(updateProductModelView.Description) ? updateProductModelView.Description : existProduct.Description;
             existProduct.CategoryId = !string.IsNullOrEmpty(updateProductModelView.CategoryId) ? updateProductModelView.CategoryId : existProduct.CategoryId;
             existProduct.Image = !string.IsNullOrEmpty(updateProductModelView.Image) ? updateProductModelView.Image : existProduct.Image;
@@ -108,6 +116,7 @@ namespace FUExchange.Services.Service
             else
             {
                 product.DeletedBy = userName;//id 
+                product.DeletedTime = DateTime.Now;
                 await _unitOfWork.GetRepository<Product>().UpdateAsync(product);
                 await _unitOfWork.SaveAsync();
             }          
@@ -124,7 +133,8 @@ namespace FUExchange.Services.Service
             else
             {
                 product.Rating += 1;
-                product.NumberOfStar = (double)(product.NumberOfStar + star) / product.Rating;
+                product.TotalStar = product.TotalStar + star;
+                product.NumberOfStar = Convert.ToDouble(string.Format("{0:00.0}", (double)product.TotalStar / product.Rating));
                 await _unitOfWork.GetRepository<Product>().UpdateAsync(product);
                 await _unitOfWork.SaveAsync(); ;
             }           

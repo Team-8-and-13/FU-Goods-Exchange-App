@@ -1,4 +1,5 @@
 ﻿using FUExchange.Contract.Services.Interface;
+using FUExchange.Core.Base;
 using FUExchange.Core.Constants;
 using FUExchange.Core.Response;
 using Microsoft.AspNetCore.Authorization;
@@ -32,22 +33,47 @@ namespace FUExchangeBE.API.Controllers
         [Route("Get_Notification_For_User_By_Id")]
         public async Task<IActionResult> GetNotificationById(string id)
         {
-            var notification = await _notificationService.GetNotificationById(id);
-            return Ok(new BaseResponseModel(
-                     StatusCodes.Status200OK,
-                     ResponseCodeConstants.SUCCESS,
-                     notification));
+            try
+            {
+                var notification = await _notificationService.GetNotificationById(id);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         notification));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
+
         }
 
         [HttpDelete]
         [Route("Get_Notification_For_User_By_Id")]
         public async Task<IActionResult> Delete(string id)
         {
-            await _notificationService.DeleteNotification(id);
-            return Ok(new BaseResponseModel(
-                     StatusCodes.Status200OK,
-                     ResponseCodeConstants.SUCCESS,
-                     "Delete successfully"));
+            try
+            {
+                await _notificationService.DeleteNotification(id);
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         "Delete successfully"));
+            }
+            catch (BaseException.ErrorException ex)
+            {
+                return Ok(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
         }
     }
 }

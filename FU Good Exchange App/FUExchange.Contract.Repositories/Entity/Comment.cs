@@ -13,6 +13,7 @@ namespace FUExchange.Contract.Repositories.Entity
         public string ProductId { get; set; } = string.Empty;
         [Required]
         public string CommentText { get; set; } = string.Empty;
+        public string CommentArea {  get; set; } = string.Empty;
         [ForeignKey("UserId")]
         public virtual ApplicationUser? User { get; set; }
         [ForeignKey("ProductId")]

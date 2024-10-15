@@ -9,5 +9,6 @@
         public required double Price { get; set; }
         public required string Description { get; set; }
         public required string Image { get; set; }
+        public required double NumberOfStar { get; set; }
     }
 }

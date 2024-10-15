@@ -70,9 +70,5 @@ namespace FUExchange.Repositories.UOW
             return new ProImagesRepository(_dbContext);
 
         }
-        public ICommentRepository GetCommentRepository()
-        {
-            return new CommentRepository(_dbContext);
-        }
     }
 }

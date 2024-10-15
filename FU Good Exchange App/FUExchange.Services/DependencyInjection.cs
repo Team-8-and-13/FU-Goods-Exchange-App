@@ -22,7 +22,7 @@ namespace FUExchange.Services
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IGenericRepository<Category>, GenericRepository<Category>>();
             services.AddScoped<IProImagesRepository, ProImagesRepository>();
-            services.AddScoped<ICommentRepository, CommentRepository>();
+           
 
         }
         public static void AddAutoMap(this IServiceCollection services)

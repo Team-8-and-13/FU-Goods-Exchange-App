@@ -21,6 +21,6 @@ namespace FUExchange.Contract.Services.Interface
         Task ApproveProduct(string id);
         Task SoldProduct(string id);
         Task RateProduct(string id, int star);
-        //Task<BasePaginatedList<Product>> GetProductPaginatedAsync(int pageIndex, int pageSize);
+        Task<SelectProductModelView?> GetProductByCommentId(string id);
     }
 }

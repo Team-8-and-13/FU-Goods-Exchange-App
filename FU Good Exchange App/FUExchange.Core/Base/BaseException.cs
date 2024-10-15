@@ -61,9 +61,9 @@ namespace FUExchange.Core.Base
         }
         public class ErrorDetail
         {
-            public string? ErrorCode { get; set; }
+            public required string ErrorCode { get; set; }
 
-            public object? ErrorMessage { get; set; }
+            public required object ErrorMessage { get; set; }
         }
     }
 }

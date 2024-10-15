@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FUExchange.Contract.Repositories.Entity;
 using FUExchange.ModelViews.BanModelViews;
+using FUExchange.ModelViews.CommentModelViews;
 using FUExchange.ModelViews.NotificationModelViews;
 using FUExchange.ModelViews.ProductModelViews;
 
@@ -18,6 +19,9 @@ namespace FUExchange.Services.Mapping
 
             //Ban
             CreateMap<BanModelView, Ban>().ReverseMap();
+
+            //Comment
+            CreateMap<CommentModelView, Comment>().ReverseMap();
         }
     }
 }
