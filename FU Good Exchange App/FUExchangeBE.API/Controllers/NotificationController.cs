@@ -43,7 +43,7 @@ namespace FUExchangeBE.API.Controllers
             }
             catch (BaseException.ErrorException ex)
             {
-                return Ok(
+                return BadRequest(
                     new BaseResponseModel(
                         ex.StatusCode,
                          ex.ErrorDetail.ErrorCode.ToString(),
@@ -67,7 +67,7 @@ namespace FUExchangeBE.API.Controllers
             }
             catch (BaseException.ErrorException ex)
             {
-                return Ok(
+                return BadRequest(
                     new BaseResponseModel(
                         ex.StatusCode,
                          ex.ErrorDetail.ErrorCode.ToString(),
