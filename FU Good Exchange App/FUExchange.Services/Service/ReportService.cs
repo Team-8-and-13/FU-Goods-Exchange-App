@@ -1,4 +1,5 @@
-﻿using FUExchange.Contract.Repositories.Entity;
+﻿using System.Security.Claims;
+using FUExchange.Contract.Repositories.Entity;
 using FUExchange.Contract.Repositories.Interface;
 using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
@@ -80,7 +81,10 @@ namespace FUExchange.Services.Service
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "UserId là bắt buộc.");
             }
-
+            if (reportRequest == null || string.IsNullOrEmpty(reportRequest.Reason))
+            {
+                throw new ErrorException(StatusCodes.Status401Unauthorized, ResponseCodeConstants.UNAUTHORIZED, "Không có thông tin phiên làm việc.");
+            }
             // Chuyển đổi từ string sang Guid
             if (!Guid.TryParse(reportRequest.UserId, out Guid userId))
             {
