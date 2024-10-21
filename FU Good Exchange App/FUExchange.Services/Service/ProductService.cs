@@ -59,6 +59,23 @@ namespace FUExchange.Services.Service
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
 
+            if (string.IsNullOrEmpty(createProductModelView.CategoryId))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không cho phép bỏ trống trường CategoryId");
+            }
+            if (string.IsNullOrEmpty(createProductModelView.Name))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không cho phép bỏ trống trường Name");
+            }
+            if (string.IsNullOrEmpty(createProductModelView.Description))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không cho phép bỏ trống trường Description");
+            }
+            if (createProductModelView.Price == 0)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không cho phép nhập giá trị là 0");
+            }
+
             var product = new Product
             {
                 CategoryId = createProductModelView.CategoryId,
