@@ -58,6 +58,8 @@ namespace FUExchange.Services.Service
             //Lấy thông tin user hiện hành
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
+            Category? cate = await _unitOfWork.GetRepository<Category>().GetByIdAsync(createProductModelView.CategoryId) 
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không cho tìm thấy CategoryId trong dữ liệu");
 
             if (string.IsNullOrEmpty(createProductModelView.CategoryId))
             {
@@ -98,7 +100,13 @@ namespace FUExchange.Services.Service
 
             Product? existProduct = await _unitOfWork.GetRepository<Product>().GetByIdAsync(productId) ??
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy sản phẩm");
-            
+
+            if (!string.IsNullOrEmpty(updateProductModelView.CategoryId))
+            {
+                Category? cate = await _unitOfWork.GetRepository<Category>().GetByIdAsync(updateProductModelView.CategoryId)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không cho tìm thấy CategoryId trong dữ liệu");
+            }           
+
             if (existProduct.SellerId != userID) // Chỉ user tạo product mới được cập nhật product
             {
                 throw new ErrorException(StatusCodes.Status401Unauthorized, ResponseCodeConstants.UNAUTHORIZED, "Bạn không có quyền chỉnh sửa sản phẩm này");
