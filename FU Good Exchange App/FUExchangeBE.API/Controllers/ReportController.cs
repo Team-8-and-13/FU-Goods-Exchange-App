@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using FUExchange.ModelViews.ReportModelsView;
+using static FUExchange.Core.Base.BaseException;
 namespace FUExchangeBE.API.Controllers
 {
     [Route("api/[controller]")]
@@ -93,6 +94,15 @@ namespace FUExchangeBE.API.Controllers
                     data: ex.Message
                 ));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.BAD_REQUEST,
+                    data: ex.Message
+                ));
+            }
+
         }
 
         // Update Report

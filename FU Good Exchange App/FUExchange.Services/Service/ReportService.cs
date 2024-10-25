@@ -79,16 +79,17 @@ namespace FUExchange.Services.Service
         {
             if (reportRequest == null || string.IsNullOrEmpty(reportRequest.UserId))
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "UserId là bắt buộc.");
+                throw new ArgumentNullException(nameof(reportRequest.UserId), "UserId là bắt buộc.");
             }
-            if (reportRequest == null || string.IsNullOrEmpty(reportRequest.Reason))
+
+            if (string.IsNullOrEmpty(reportRequest.Reason))
             {
-                throw new ErrorException(StatusCodes.Status401Unauthorized, ResponseCodeConstants.UNAUTHORIZED, "Không có thông tin phiên làm việc.");
+                throw new ArgumentNullException(nameof(reportRequest.Reason), "Lý do là bắt buộc.");
             }
             // Chuyển đổi từ string sang Guid
             if (!Guid.TryParse(reportRequest.UserId, out Guid userId))
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Định dạng UserId không hợp lệ.");
+                throw new ArgumentException("Định dạng UserId không hợp lệ.", nameof(reportRequest.UserId));
             }
 
             var report = new Report
