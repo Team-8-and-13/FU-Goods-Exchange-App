@@ -24,21 +24,34 @@ namespace FUExchangeBE.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllReports(int pageIndex = 1, int pageSize = 10)
         {
-            var paginatedReports = await _reportService.GetAllReports(pageIndex, pageSize);
-
-            // Sử dụng thuộc tính Items để truy cập danh sách các báo cáo
-            var reportResponseModels = paginatedReports.Items.Select(report => new ReportResponseModel
+            try
             {
-                Id = report.Id.ToString(),
-                Reason = report.Reason,
-                Status = report.Status
-            });
+                var paginatedReports = await _reportService.GetAllReports(pageIndex, pageSize);
 
-            return Ok(new BaseResponse<IEnumerable<ReportResponseModel>>(
-                statusCode: StatusCodeHelper.OK,
-                code: StatusCodeHelper.OK.ToString(),
-                data: reportResponseModels
-            ));
+                // Sử dụng thuộc tính Items để truy cập danh sách các báo cáo
+                var reportResponseModels = paginatedReports.Items.Select(report => new ReportResponseModel
+                {
+                    Id = report.Id.ToString(),
+                    Reason = report.Reason,
+                    Status = report.Status
+                });
+
+                return Ok(new BaseResponse<IEnumerable<ReportResponseModel>>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: reportResponseModels
+                ));
+            }
+            catch (ArgumentException ex)
+            {
+                // Xử lý các lỗi đầu vào từ GetAllReports
+                return BadRequest(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.BAD_REQUEST,
+                    data: ex.Message
+                ));
+            }
+
         }
         // Get Report by Id
         [HttpGet("{id}")]

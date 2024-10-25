@@ -35,6 +35,21 @@ namespace FUExchange.Services.Service
         }
         public async Task<BasePaginatedList<ReportListResponseModel>> GetAllReports(int pageIndex, int pageSize)
         {
+            if (pageIndex <= 0)
+            {
+                throw new ArgumentException("pageIndex phải lớn hơn 0.");
+            }
+
+            if (pageSize <= 0)
+            {
+                throw new ArgumentException("pageSize phải lớn hơn 0.");
+            }
+
+            if (pageIndex >= pageSize)
+            {
+                throw new ArgumentException("pageIndex phải nhỏ hơn pageSize.");
+            }
+
             var query = _unitOfWork.GetRepository<Report>().Entities
                 .Where(r => !r.DeletedTime.HasValue);
 
