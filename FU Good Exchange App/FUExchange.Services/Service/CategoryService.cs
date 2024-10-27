@@ -7,6 +7,7 @@ using FUExchange.ModelViews.CategoryModelViews;
 using FUExchange.ModelViews.ProductModelViews;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using static FUExchange.Core.Base.BaseException;
 
 namespace FUExchange.Services.Service
@@ -29,7 +30,7 @@ namespace FUExchange.Services.Service
             var paginatedList = await _unitOfWork.GetRepository<Category>().GetPagging(CateQuery, pageIndex, pageSize);
             var mappedList = paginatedList.Items.Select(c => new CategoriesModelView
             {
-                CategoryId = c.Id.ToString(), // Assuming Id is of type Guid or int, adjust if needed
+                CategoryId = c.Id.ToString(),
                 Name = c.Name
             }).ToList();
             return new BasePaginatedList<CategoriesModelView>(mappedList, paginatedList.TotalItems, paginatedList.CurrentPage, paginatedList.PageSize);
@@ -37,24 +38,14 @@ namespace FUExchange.Services.Service
 
         public async Task<CategoriesModelView?> GetCategoryById(string id)
         {
-            var category = await _unitOfWork.GetRepository<Category>().GetByIdAsync(id);
-            if (category == null)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục không tồn tại!");
-            }
-            else if (category.DeletedTime.HasValue)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục đã bị xóa!");
-            }
-
+            var category =  _unitOfWork.GetRepository<Category>().Entities.Where(i => i.Id == id && !i.DeletedTime.HasValue).FirstOrDefault() 
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Danh mục đã bị xóa hoặc không tồn tại!"); ;
             var cate = new CategoriesModelView
             {
                 CategoryId = category.Id,
                 Name = category.Name
             };
-
-            return cate ??
-                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy sản phẩm"); ;
+            return cate;
         }
 
         public async Task CreateCategory(CreateCategoryModelViews createCategoryModel)
@@ -62,9 +53,9 @@ namespace FUExchange.Services.Service
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
-            if (createCategoryModel == null)
+            if (createCategoryModel.Name.IsNullOrEmpty())
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Dữ liệu không hợp lệ."); ;
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Tên không được để trống."); ;
             }
             var category = new Category
             {
@@ -83,9 +74,9 @@ namespace FUExchange.Services.Service
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
             var existingCategory = await _unitOfWork.GetRepository<Category>().GetByIdAsync(id);
 
-            if (updateCategoryModel == null)
+            if (updateCategoryModel.Name.IsNullOrEmpty())
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Dữ liệu không hợp lệ."); 
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Tên không được rỗng."); 
             }
             if (existingCategory == null)
             {
