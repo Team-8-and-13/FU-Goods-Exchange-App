@@ -154,7 +154,7 @@ namespace FUExchangeBE.API.Controllers
             }
         }
         [HttpPut]
-        [Route("api/controller/Rate_For_Product")]
+        [Route("Rate_For_Product")]
         public async Task<IActionResult> RateProduct(string id, int star)
         {
             try
@@ -179,7 +179,7 @@ namespace FUExchangeBE.API.Controllers
 
         [Authorize(Policy = "ModeratorPolicy")]
         [HttpPut]
-        [Route("api/controller/Approve_Product")]
+        [Route("Approve_Product")]
         public async Task<IActionResult> Approve(string id)
         {
             try

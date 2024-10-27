@@ -55,10 +55,10 @@ namespace FUExchange.Services.Service
             
             if(userid != notification.UserId)
             {
-                throw new ErrorException(StatusCodes.Status401Unauthorized, ResponseCodeConstants.NOT_FOUND, "Bạn không có quyền xóa thông báo này !");
+                throw new ErrorException(StatusCodes.Status401Unauthorized, ResponseCodeConstants.UNAUTHORIZED, "Bạn không có quyền xóa thông báo này !");
             }
-            
-            await _unitOfWork.GetRepository<Notification>().DeleteAsync(notification);
+
+            await _unitOfWork.GetRepository<Notification>().DeleteAsync(id);
             await _unitOfWork.SaveAsync();
         }
     }

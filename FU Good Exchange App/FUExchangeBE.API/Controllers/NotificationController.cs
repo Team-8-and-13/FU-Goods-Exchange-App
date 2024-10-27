@@ -53,8 +53,7 @@ namespace FUExchangeBE.API.Controllers
 
         }
 
-        [HttpDelete]
-        [Route("Get_Notification_For_User_By_Id")]
+        [HttpDelete]      
         public async Task<IActionResult> Delete(string id)
         {
             try
