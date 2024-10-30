@@ -176,12 +176,19 @@ namespace FUExchange.Services.Service
             // Lấy UserId từ claims và chuyển đổi thành Guid
             var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
             if (!Guid.TryParse(userIdClaim, out Guid userId))
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "UserId không hợp lệ.");
+                throw new KeyNotFoundException( "UserId không hợp lệ.");
 
             // Tìm báo cáo dựa trên Id và kiểm tra xem nó chưa bị xóa
             var report = await _unitOfWork.GetRepository<Report>().Entities
-                 .Where(r => r.Id == id && !r.DeletedTime.HasValue)
-                 .FirstOrDefaultAsync() ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy công việc hoặc đã bị xóa.");
+                .Where(r => r.Id == id && !r.DeletedTime.HasValue)
+                .FirstOrDefaultAsync();
+
+            // Nếu không tìm thấy báo cáo, trả về lỗi rõ ràng hơn
+            if (report == null)
+            {
+                throw new KeyNotFoundException( "Lỗi: ID báo cáo không hợp lệ hoặc báo cáo đã bị xóa.");
+            }
+
             // Gán DeletedBy và DeletedTime trước khi xóa
             report.DeletedBy = userId.ToString();
             report.DeletedTime = DateTime.Now;
