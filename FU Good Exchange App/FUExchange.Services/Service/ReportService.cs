@@ -204,7 +204,10 @@ namespace FUExchange.Services.Service
             var reports = await _unitOfWork.GetRepository<Report>().Entities
                 .Where(r => r.Reason.Contains(reason) && !r.DeletedTime.HasValue)
                 .ToListAsync();
-
+            if (reports == null || !reports.Any())
+            {
+                throw new KeyNotFoundException("Không có báo cáo nào tồn tại với lý do đã cung cấp.");
+            }
             return reports.Select(r => new ReportResponseModel
             {
                 Id = r.Id.ToString(),
@@ -215,10 +218,16 @@ namespace FUExchange.Services.Service
         //CheckReportStatus
         public async Task<bool> CheckReportStatus(string reportId)
         {
+
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(reportId);
-            if (report == null || report.DeletedTime.HasValue)
+            if (report == null)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy công việc hoặc đã bị xóa.");
+                throw new KeyNotFoundException("Không tìm thấy báo cáo với ID đã cung cấp.");
+            }
+
+            if (report.DeletedTime.HasValue)
+            {
+                throw new KeyNotFoundException("Báo cáo đã bị xóa.");
             }
 
             return report.Status;
@@ -226,11 +235,20 @@ namespace FUExchange.Services.Service
         //Thêm API check trạng thái report cho admin
         public async Task<ReportStatusResponseModel> CheckReportStatusForAdminAsync(string id)
         {
-            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id)
-                ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy báo cáo hoặc đã bị xóa.");
+            // Lấy báo cáo dựa trên ID
+            var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
 
+            // Kiểm tra xem báo cáo có tồn tại hay không
+            if (report == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy báo cáo với ID đã cung cấp.");
+            }
+
+            // Kiểm tra xem báo cáo đã bị xóa chưa
             if (report.DeletedTime.HasValue)
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Báo cáo đã bị xóa.");
+            {
+                throw new KeyNotFoundException("Báo cáo đã bị xóa.");
+            }
             return new ReportStatusResponseModel
             {
                 ReportId = report.Id.ToString(),

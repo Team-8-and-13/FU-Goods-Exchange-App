@@ -175,12 +175,23 @@ namespace FUExchangeBE.API.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> GetReportsByReason([FromQuery] string reason)
         {
-            var reports = await _reportService.GetReportsByReason(reason);
-            return Ok(new BaseResponse<IEnumerable<ReportResponseModel>>(
-                statusCode: StatusCodeHelper.OK,
-                code: StatusCodeHelper.OK.ToString(),
-                data: reports
-            ));
+            try
+            {
+                var reports = await _reportService.GetReportsByReason(reason);
+                return Ok(new BaseResponse<IEnumerable<ReportResponseModel>>(
+                    statusCode: StatusCodeHelper.OK,
+                    code: StatusCodeHelper.OK.ToString(),
+                    data: reports
+                ));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodeHelper.BadRequest,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    data: ex.Message
+                ));
+            }
         }
         //kiểm tra trạng thái của report
         [HttpGet("{id}/status")]
