@@ -71,15 +71,20 @@ namespace FUExchange.Services.Service
         }
         public async Task<ReportResponseModel?> GetReportById(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("ID không được để trống.");
+            }
             var report = await _unitOfWork.GetRepository<Report>().GetByIdAsync(id);
             if (report == null)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy công việc.");
+                throw new KeyNotFoundException("Lỗi: Không tìm thấy công việc. Vui lòng kiểm tra lại ID.");
             }
             else if (report.DeletedTime.HasValue)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Công việc đã bị xóa.");
+                throw new KeyNotFoundException("Lỗi: Công việc đã bị xóa và không còn khả dụng.");
             }
+
 
             return new ReportResponseModel
             {
@@ -124,20 +129,28 @@ namespace FUExchange.Services.Service
         public async Task UpdateReport(string id, UpdateReportRequestModel updateReportRequest)
         {
             if (updateReportRequest == null)
+            {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Dữ liệu yêu cầu không hợp lệ.");
-
+            }
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
 
             var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
             if (!Guid.TryParse(userIdClaim, out Guid userId))
+            {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "UserId không hợp lệ.");
+            }
 
+            // Tìm báo cáo với ID cung cấp, kiểm tra xem báo cáo đã bị xóa hay chưa
             var existingReport = await _unitOfWork.GetRepository<Report>().Entities
-                .Where(r => r.Id == id && !r.DeletedTime.HasValue)
-                .FirstOrDefaultAsync()
-                ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy báo cáo hoặc báo cáo đã bị xóa.");
+                .Where(r => r.Id == id && !r.DeletedTime.HasValue) // Điều kiện chưa bị xóa
+                .FirstOrDefaultAsync();
 
+            // Nếu không tìm thấy báo cáo, hoặc báo cáo đã bị xóa, trả về lỗi
+            if (existingReport == null)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy báo cáo hoặc báo cáo đã bị xóa.");
+            }
             // Cập nhật thông tin của báo cáo
             existingReport.Reason = updateReportRequest.Reason;
             existingReport.Status = updateReportRequest.Status;

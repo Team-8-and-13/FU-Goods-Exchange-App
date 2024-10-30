@@ -136,9 +136,9 @@ namespace FUExchangeBE.API.Controllers
                     data: "Báo cáo được cập nhật thành công."
                 ));
             }
-            catch (KeyNotFoundException ex)
+            catch (ErrorException ex) 
             {
-                return NotFound(new BaseResponse<string>(
+                return StatusCode(ex.StatusCode, new BaseResponse<string>(
                     statusCode: StatusCodeHelper.BadRequest,
                     code: ResponseCodeConstants.NOT_FOUND,
                     data: ex.Message
