@@ -42,6 +42,7 @@ namespace FUExchangeBE.API.Controllers
             try
             {
                 var ban = await _banService.GetBan(id);
+<<<<<<< Updated upstream
                 return Ok(new BaseResponse<BanModelView>(
                  statusCode: StatusCodeHelper.OK,
                  code: StatusCodeHelper.OK.ToString(),
@@ -61,6 +62,12 @@ namespace FUExchangeBE.API.Controllers
                 StatusCodes.Status200OK,
                 ResponseCodeConstants.SUCCESS,
                 ban));
+>>>>>>> Stashed changes
+=======
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         ban));           
 >>>>>>> Stashed changes
         }
 

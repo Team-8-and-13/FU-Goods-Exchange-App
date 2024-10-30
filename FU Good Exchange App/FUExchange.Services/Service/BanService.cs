@@ -45,6 +45,7 @@ namespace FUExchange.Services.Service
                 throw new KeyNotFoundException("Ban đã bị xóa.");
             }
 
+<<<<<<< Updated upstream
             var banView = new BanModelView
             {
                 ReportId=ban.Id,
@@ -54,13 +55,23 @@ namespace FUExchange.Services.Service
             return banView ??
                  throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy Ban"); 
 
+=======
+            return banmodelview ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Not found. ");
+>>>>>>> Stashed changes
         }
 
         public async Task CreateBan(CreateBanModelView createBanModel)
         {
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var User = httpContext.HttpContext?.User;
+<<<<<<< Updated upstream
             Guid userName = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserName")?.Value);
+=======
+            
+            var rp = await _unitOfWork.GetRepository<Report>().GetByIdAsync(rpId) ?? 
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Report not found. ");
+            
+>>>>>>> Stashed changes
             if (createBanModel == null)
             {
                 throw new KeyNotFoundException("Dữ liệu không hợp lệ.");
