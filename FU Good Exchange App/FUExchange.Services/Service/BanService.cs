@@ -38,11 +38,11 @@ namespace FUExchange.Services.Service
             var ban = await _unitOfWork.GetRepository<Ban>().GetByIdAsync(id);
             if (ban == null)
             {
-                throw new KeyNotFoundException("Không tìm thấy Ban.");
+                throw new KeyNotFoundException("Ban not found.");
             }
             else if (ban.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Ban đã bị xóa.");
+                throw new KeyNotFoundException("Ban has been deleted.");
             }
 
 <<<<<<< Updated upstream
@@ -53,7 +53,7 @@ namespace FUExchange.Services.Service
             };
 
             return banView ??
-                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy Ban"); 
+                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Ban not found"); 
 
 =======
             return banmodelview ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Not found. ");
@@ -74,7 +74,7 @@ namespace FUExchange.Services.Service
 >>>>>>> Stashed changes
             if (createBanModel == null)
             {
-                throw new KeyNotFoundException("Dữ liệu không hợp lệ.");
+                throw new KeyNotFoundException("Invalid ban data.");
             }
             var ban = new Ban
             {
@@ -97,15 +97,15 @@ namespace FUExchange.Services.Service
 
             if (updateBanModel == null)
             {
-                throw new KeyNotFoundException("Dữ liệu không hợp lệ.");
+                throw new KeyNotFoundException("Invalid ban data.");
             }
             if (existBan == null)
             {
-                throw new KeyNotFoundException("Không tìm thấy Ban.");
+                throw new KeyNotFoundException("Ban not found.");
             }
             else if (existBan.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Ban đã bị xóa.");
+                throw new KeyNotFoundException("Ban has been deleted.");
             }
             existBan.Expires = updateBanModel.Expires;
             existBan.LastUpdatedBy = userName.ToString();
@@ -123,7 +123,7 @@ namespace FUExchange.Services.Service
 
             if (ban == null || ban.DeletedTime.HasValue)
             {
-                throw new KeyNotFoundException("Ban không tìm thấy hoặc đã bị xóa.");
+                throw new KeyNotFoundException("Ban not found or has been deleted.");
             }
 
             ban.DeletedBy = userName.ToString();
