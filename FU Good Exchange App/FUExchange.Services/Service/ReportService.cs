@@ -130,27 +130,34 @@ namespace FUExchange.Services.Service
         {
             if (updateReportRequest == null)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Dữ liệu yêu cầu không hợp lệ.");
+                throw new ArgumentNullException(nameof(updateReportRequest), "Dữ liệu yêu cầu không hợp lệ.");
             }
+            // Kiểm tra Reason không được để trống hoặc chỉ chứa khoảng trắng
+            if (string.IsNullOrWhiteSpace(updateReportRequest.Reason))
+            {
+                throw new KeyNotFoundException("Lý do là bắt buộc và không được chứa khoảng trắng.");
+            }
+
             IHttpContextAccessor httpContext = new HttpContextAccessor();
             var user = httpContext.HttpContext?.User;
 
             var userIdClaim = user?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            if (!Guid.TryParse(userIdClaim, out Guid userId))
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "UserId không hợp lệ.");
+                throw new ArgumentException("UserId không hợp lệ hoặc không tồn tại.", nameof(userIdClaim));
             }
 
             // Tìm báo cáo với ID cung cấp, kiểm tra xem báo cáo đã bị xóa hay chưa
             var existingReport = await _unitOfWork.GetRepository<Report>().Entities
-                .Where(r => r.Id == id && !r.DeletedTime.HasValue) // Điều kiện chưa bị xóa
+                .Where(r => r.Id == id && !r.DeletedTime.HasValue)
                 .FirstOrDefaultAsync();
 
             // Nếu không tìm thấy báo cáo, hoặc báo cáo đã bị xóa, trả về lỗi
             if (existingReport == null)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không tìm thấy báo cáo hoặc báo cáo đã bị xóa.");
+                throw new KeyNotFoundException($"Không tìm thấy báo cáo với ID '{id}' hoặc báo cáo đã bị xóa.");
             }
+
             // Cập nhật thông tin của báo cáo
             existingReport.Reason = updateReportRequest.Reason;
             existingReport.Status = updateReportRequest.Status;
