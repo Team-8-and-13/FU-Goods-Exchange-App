@@ -7,6 +7,7 @@ using FUExchange.ModelViews.CategoryModelViews;
 using FUExchange.ModelViews.ProductImagesModelViews;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using static FUExchange.Core.Base.BaseException;
 namespace FUExchange.Services.Service
 {
@@ -27,7 +28,11 @@ namespace FUExchange.Services.Service
             var idProduct = await _unitOfWork.GetRepository<Product>().GetByIdAsync(idPro);
             if (idProduct == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không hợp dữ liệu.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy mã sản phẩm.");
+            }
+            if (createproimg.Image.IsNullOrEmpty())
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Địa chỉ ảnh là bắt buộc");
             }
             var proImg = new ProductImage
             {
@@ -38,7 +43,7 @@ namespace FUExchange.Services.Service
                 Description = createproimg.Description
             };
             await _unitOfWork.GetRepository<ProductImage>().InsertAsync(proImg);
-            await _unitOfWork.SaveAsync(); // Lưu thay đổi vào database
+            await _unitOfWork.SaveAsync();
         }
 
         public async Task UpdateProductImage(string id, UpdateProductImageModelViews updateproimg)
@@ -47,13 +52,17 @@ namespace FUExchange.Services.Service
             var User = httpContext.HttpContext?.User;
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
             var existingProimg = await _unitOfWork.GetRepository<ProductImage>().GetByIdAsync(id);
-            if (updateproimg == null || existingProimg.Id != id)
+            if(id.IsNullOrEmpty())
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Dữ liệu không hợp lệ.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Mã ảnh sản phẩm không được rỗng.");
+            }    
+            if (updateproimg.Image.IsNullOrEmpty())
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Địa chỉ không được phép rỗng.");
             }
             if (existingProimg == null || existingProimg.DeletedTime.HasValue)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy id ProductImage hoặc đã bị xóa.");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy mã ảnh sản phẩm hoặc đã bị xóa.");
             }
             existingProimg.Image = updateproimg.Image;
             existingProimg.Description = updateproimg.Description;
@@ -70,9 +79,13 @@ namespace FUExchange.Services.Service
             Guid userID = new Guid(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
 
             var proimg = await _unitOfWork.GetRepository<ProductImage>().GetByIdAsync(id);
-            if (proimg.Id != id) 
+            if (id.IsNullOrEmpty())
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Id không tồn tại để xóa");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Mã ảnh sản phẩm không được rỗng.");
+            }
+            if (proimg == null || proimg.DeletedTime.HasValue) 
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy mã ảnh sản phẩm hoặc đã bị xóa.");
             }
 
             proimg.DeletedTime = DateTime.Now;
@@ -85,9 +98,13 @@ namespace FUExchange.Services.Service
         public async Task<IEnumerable<ProductImageModelViews>> GetImagesbyIdPro(string productId)
         {
             var existingProduct = await _unitOfWork.GetRepository<Product>().GetByIdAsync(productId);
-            if (existingProduct == null || existingProduct.Id != productId)
+            if(productId.IsNullOrEmpty())
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Mã sản phẩm là bắt buộc");
+            }    
+            if (existingProduct == null || existingProduct.DeletedTime.HasValue)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy sản phẩm này");
             }
             var productImages = await _unitOfWork.GetProductImagRepository().GetImagesbyIdPro(productId);
             if (productImages == null || !productImages.Any())
@@ -112,7 +129,7 @@ namespace FUExchange.Services.Service
 
             if (existingProductImage == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy id ProductImage");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy mã ảnh sản phẩm");
             }
 
             return new ProductImageModelViews

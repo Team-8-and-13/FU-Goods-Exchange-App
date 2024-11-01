@@ -3,6 +3,7 @@ using FUExchange.Contract.Services.Interface;
 using FUExchange.Core;
 using FUExchange.Core.Base;
 using FUExchange.Core.Constants;
+using FUExchange.Core.Response;
 using FUExchange.ModelViews.CategoryModelViews;
 using FUExchange.ModelViews.ProductModelViews;
 using FUExchange.Services.Service;
@@ -56,22 +57,6 @@ namespace FUExchangeBE.API.Controllers
                     data: ex.ErrorDetail.ErrorMessage?.ToString() ?? "Lỗi!"
                 ));
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.ServerError,
-                    code: "server_error",
-                    data: ex.Message
-                ));
-            }
         }
 
         [HttpGet("{id}")]
@@ -85,13 +70,14 @@ namespace FUExchangeBE.API.Controllers
                  code: StatusCodeHelper.OK.ToString(),
                  data: category));
             }
-            catch (KeyNotFoundException ex)
+            catch (BaseException.ErrorException ex)
             {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
+                return BadRequest(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
             }
         }
 
@@ -102,18 +88,19 @@ namespace FUExchangeBE.API.Controllers
             try
             {
                 await _categoryService.CreateCategory(createCategoryModel);
-                return Ok(new BaseResponse<string>(
-                 statusCode: StatusCodeHelper.OK,
-                 code: StatusCodeHelper.OK.ToString(),
-                 data: "Tạo thành công"));
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         "Tạo thành công."));
             }
-            catch (KeyNotFoundException ex)
+            catch (BaseException.ErrorException ex)
             {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
+                return BadRequest(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
             }
         }
 
@@ -123,19 +110,20 @@ namespace FUExchangeBE.API.Controllers
             try
             {
                 await _categoryService.UpdateCategory(id, updateCategoryModel);
-                return Ok(new BaseResponse<string>(
-                 statusCode: StatusCodeHelper.OK,
-                 code: StatusCodeHelper.OK.ToString(),
-                 data: "Sửa thành công"));
+                return Ok(new BaseResponseModel(
+                         StatusCodes.Status200OK,
+                         ResponseCodeConstants.SUCCESS,
+                         "Sửa thành công."));
             }
-            catch (KeyNotFoundException ex)
+            catch (BaseException.ErrorException ex)
             {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
-            }            
+                return BadRequest(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
+            }
         }
 
         [HttpDelete("{id}")]
@@ -144,18 +132,19 @@ namespace FUExchangeBE.API.Controllers
             try
             {
                 await _categoryService.DeleteCategory(id);
-                return Ok(new BaseResponse<string>(
-                 statusCode: StatusCodeHelper.OK,
-                 code: StatusCodeHelper.OK.ToString(),
-                 data: "Xóa thành công"));
+                return Ok(new BaseResponseModel(
+                        StatusCodes.Status200OK,
+                        ResponseCodeConstants.SUCCESS,
+                        "Xóa thành công."));
             }
-            catch (KeyNotFoundException ex)
+            catch (BaseException.ErrorException ex)
             {
-                return NotFound(new BaseResponse<string>(
-                    statusCode: StatusCodeHelper.BadRequest,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    data: ex.Message
-                ));
+                return BadRequest(
+                    new BaseResponseModel(
+                        ex.StatusCode,
+                         ex.ErrorDetail.ErrorCode.ToString(),
+                         ex.ErrorDetail.ErrorMessage.ToString())
+                    );
             }
         }
     }
