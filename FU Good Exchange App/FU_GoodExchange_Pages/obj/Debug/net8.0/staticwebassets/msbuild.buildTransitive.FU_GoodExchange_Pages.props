@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\FU_GoodExchange_Pages.props" />
+</Project>
